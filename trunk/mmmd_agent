@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+
+# Use external modules
+use strict;
+use Config;
+use threads;
+use threads::shared;
+use IO::Socket;
+use Data::Dumper;
+use POSIX;
+use Proc::Daemon;
+
+# Check perl for threads support
+$Config{useithreads} or die "Recompile Perl with threads to run this program.";
+
+# Include parts of system
+require '/opt/mmm/lib/config.pm';
+require '/opt/mmm/lib/log.pm';
+require '/opt/mmm/lib/agent_commands.pm';
+
+#-----------------------------------------------------------------
+# Read config file
+our $config : shared = ReadConfig("/opt/mmm/mmm_agent.conf");
+
+# We need to know how previous session has been finished
+our $unclean_start : shared = CheckPidFile();
+
+# Go to background
+Proc::Daemon::Init if ($config->{debug} =~ /^(off|no|0)$/i);
+CreatePidFile();
+
+# Shutdown flag
+our $shutdown : shared = 0;
+
+# Start time to calculate uptime
+our $start_time : shared = time();
+
+# Catch signals
+$SIG{INT} = \&SignalHandler;
+$SIG{TERM} = \&SignalHandler;
+
+#-----------------------------------------------------------------
+# Initialize server status
+our $server_version = -1;
+our $server_state = 'UNKNOWN';
+our $server_roles = ();
+our $active_master = "";
+
+# Start command handler
+CommandMain();
+
+# Delete pid file and update status file
+unlink($config->{pid_path});
+
+exit(0);
+
+#-----------------------------------------------------------------
+sub SignalHandler() {
+    LogDebug("Core: Signal received: exiting...");
+    $shutdown = 1;
+}

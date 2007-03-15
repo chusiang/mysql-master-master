@@ -1,0 +1,51 @@
+#
+# Master-Master Manager config (agent)
+#
+
+# Debug mode
+debug no
+
+# Paths
+pid_path /opt/mmm/var/mmmd_agent.pid
+bin_path /opt/mmm/bin
+
+# Logging setup
+log mydebug 
+    file /opt/mmm/var/mmm-debug.log
+    level debug
+
+log mytraps 
+    file /opt/mmm/var/mmm-traps.log
+    level trap
+
+# MMMD command socket tcp-port and ip
+bind_port 9989
+
+# Cluster interface
+cluster_interface eth1
+
+# Define current server id
+this db10
+mode slave
+
+# For masters
+# peer db8
+
+# Cluster hosts addresses and access params
+host db8
+    ip 192.168.1.8
+    port 3306
+    user rep_agent
+    password RepAgent
+
+host db9
+    ip 192.168.1.9
+    port 3306
+    user rep_agent
+    password RepAgent
+
+host db10
+    ip 192.168.1.10
+    port 3306
+    user rep_agent
+    password RepAgent
