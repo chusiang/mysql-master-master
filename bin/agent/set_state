@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use strict;
+use threads;
+use threads::shared;
+use Thread::Queue;
+use Data::Dumper;
+use POSIX;
+use DBI;
+
+require '/opt/mmm/lib/config.pm';
+require '/opt/mmm/lib/log.pm';
+require '/opt/mmm/lib/roles.pm';
+
+# Read config file
+our $config : shared = ReadConfig("/opt/mmm/mmm_agent.conf");
+
+if (scalar(@ARGV) < 2) {
+    print "Usage: $0 <old_state> <new_state>\n\n";
+    exit(1);
+}
+
+my $old_state = $ARGV[0];
+my $new_state = $ARGV[1];
+
+my $res = SetState($old_state, $new_state);
+
+print "$res\n";
+exit(0);
+
+#-----------------------------------------------------------------
+sub SetState($$) {
+    my $old_state = shift;
+    my $new_state = shift;
+    
+    if ($new_state eq 'ADMIN_OFFLINE') {
+        LogDebug("Turning off slave in this host");
+	    ExecuteBin("turn_off_slave");
+	    return "OK: state changed to ADMIN_OFFLINE";
+    }
+    
+    if ($old_state eq 'ADMIN_OFFLINE') {
+        LogDebug("Turning on slave in this host");
+	    ExecuteBin("turn_on_slave");
+	    return "OK: state changed from ADMIN_OFFLINE";
+    }
+    
+    return "OK: state changed!";
+}

@@ -1,0 +1,42 @@
+Get Dump Utility
+~~~~~~~~~~~~~~~~
+
+This tool allows user to get consistent backup of all mysql datadir files from remote server.
+
+LVM snapshots techniquie being used for backup creation. Before snapshot creation database server 
+will be locked by "flush tables with read lock" and will be unlocked just after snapshot creation 
+by "unlock tables".
+
+Datafiles copying from remote server can be performed by various methods defined in config file (at 
+this moment scp and rsync methods are implemented and tested).
+
+Copying precedure can be run by mmm_get_dump script with server name and copying method (not required) 
+as params.
+
+
+Before using this script used must create mmm_lvm.conf config file and define lots of data there:
+
+* this SERVER_NAME - name of current server
+
+* bin_lvcreate /sbin/lvcreate - path to lvcreate binary 
+* bin_lvremove /sbin/lvremove - path to lvremove binary
+
+* dest_dir /data_local - destination directory on local server where all copied files will be placed.
+
+* default_copy_method scp - default copying method (will be used if user would not provide other method in command line)
+
+* copy_method MATHOD_NAME - set of sections used to define various data copying methods
+
+* host SERVER_NAME - set of sections used to define servers parameters
+    - ip 192.168.1.104
+    - ssh_user root
+    - lvm_snapshot_size 256M
+    - lvm_data_volume mysqllv
+    - lvm_volume_group mysqlvg
+    - lvm_mount_dir /mmm_snapshot
+    - mysql_host 192.168.1.104
+    - mysql_port 3306
+    - mysql_user replication
+    - mysql_password slave
+    - my_cnf /etc/mysql/my.cnf
+

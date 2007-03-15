@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+
+use strict;
+use Data::Dumper;
+use POSIX;
+
+# Unbuffered io
+$| = 1;
+
+require '/opt/mmm/lib/config.pm';
+
+# Read config file
+my $postfix = "";
+if (scalar(@ARGV) && $ARGV[0] =~ /^@(.*)/) {
+    shift(@ARGV);
+    $postfix = "_$1";
+}
+
+my $cfg_file = "/opt/mmm/mmm_mon$postfix.conf";
+our $config = ReadConfig($cfg_file);
+
+MyExit("ERROR: Usage: <check_name>") if (scalar(@ARGV) < 1);
+
+# Get checker name
+my $check_name = $ARGV[0];
+
+# Load checker module
+my $module_file = "/opt/mmm/lib/check_modules/$check_name.pm";
+my $res = do $module_file;
+MyExit("ERROR: Can't load checker module '$check_name'") if (!$res);
+
+# Process loop
+while (!eof(STDIN)) {
+    CheckerLog("Loop start...");
+
+    # Get command
+    chomp(my $cmd = <STDIN>);
+    CheckerLog("Got cmd = '$cmd'");
+    next if ($cmd eq '');
+    
+    my @command = split(/\s+/, $cmd);
+    if ($cmd eq 'ping') {
+        CheckerLog("Pong!");
+        print "OK: Pong!\n";
+        next;
+    }
+    
+    if ($cmd ne '' && (scalar(@command) < 1 || scalar(@command) > 2)) {
+        CheckerLog("Invalid command format!");
+        print "Invalid command format. Use <command> [param]\n";
+	    next;
+    }
+    
+    # Exit if asked
+    last if ($command[0] =~ /^quit/i);
+    
+    # Process command and output result
+    if ($command[0] eq 'check') {
+        CheckerLog("Pre check...");
+        print PerformCheck(10, $command[1]) . "\n";
+        CheckerLog("Post check...");
+	    next;
+    }
+
+    print "ERROR: Invalid command ($cmd)\n";
+}
+
+CheckerLog("Exit");
+
+print("OK: Finished\n");
+exit(0);
+
+#-------------------------------------------------
+sub MyExit($) {
+    $res = shift;
+    print "$res\n";
+    exit(0);
+}
+
+#-------------------------------------------------
+sub CheckerLog($) {
+    my $msg = shift;
+    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime);
+    
+    my $f = "/opt/mmm/var/checker/$check_name-" . $config->{cluster} . ".log";
+    open(LOG, ">>$f");
+    print LOG "[$now]: $$: $msg\n";
+    close(LOG);
+}
