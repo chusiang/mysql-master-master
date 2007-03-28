@@ -12,7 +12,7 @@ use Getopt::Long;
 # Determine installation dir name
 our $SELF_DIR = dirname(Cwd::abs_path(__FILE__));
 
-# Include parts of system
+# Include parts of the system
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/db.pm';
@@ -245,28 +245,28 @@ sub LoadStatusInfo($) {
 sub ListIncrementalVersions() {
     unless ($copy_method->{incremental} eq 'yes') {
         LogError("Invalid backup directory for incremental operations");
-	exit(0);
+		exit(0);
     }
     
     #FIXME: Need to add support for other incremental methods except rdiff
     if ($backup_method ne 'rdiff') {
         LogError('Only rdiff backup method supports version lists now. Sorry.');
-	exit(0);
+		exit(0);
     }
     
     # List versions
     my $res = open(RDIFF, "rdiff-backup --parsable-output -l '$backup_dir'|");
     unless ($res) {
         LogError("Can't start rdiff-backup to read versions info from backup!");
-	exit(1);
+		exit(1);
     }
     print "Following backup versions are available:\n";
     print " Version   | Date\n";
     print "-----------|---------------------\n";
     while(<RDIFF>) {
         chomp;
-	my ($ts, $type) = split /\s+/;
-	print("$ts | " . localtime($ts) . "\n");
+		my ($ts, $type) = split /\s+/;
+		print("$ts | " . localtime($ts) . "\n");
     }
     close(RDIFF);
 }
