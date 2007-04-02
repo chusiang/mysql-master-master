@@ -1,18 +1,24 @@
 #!/usr/bin/perl
 
+# Use mandatory external modules
 use strict;
-use threads;
-use threads::shared;
-use IO::Socket;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
 use DBI;
 
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(dirname(Cwd::abs_path(__FILE__))));
 
-# Read config file and status
-our $config = ReadConfig("/opt/mmm/mmm_agent.conf");
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
+require $SELF_DIR . '/lib/roles.pm';
+
+# Read config file
+our $config = ReadConfig("mmm_agent.conf");
 
 if (scalar(@ARGV) < 1) {
     print "ERROR: Usage: $0 <master_host>\n\n";

@@ -1,32 +1,34 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
-use Config;
-use threads;
-use threads::shared;
-use Thread::Queue;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
 use Getopt::Long;
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
-require '/opt/mmm/lib/db.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
+require $SELF_DIR . '/lib/db.pm';
 
 #-----------------------------------------------------------------
 #Parse options
 
-my $config_file = "/opt/mmm/mmm_lvm.conf";
+my $config_file = "mmm_lvm.conf";
 my $host_name;
 my $clone_mode;
 my $copy_method;
 
 GetOptions("config=s" => \$config_file,
            "host=s" => \$host_name,
-	   "clone-mode=s" => \$clone_mode,
-	   "copy-method=s" => \$copy_method);
+	       "clone-mode=s" => \$clone_mode,
+	       "copy-method=s" => \$copy_method);
 
 #-----------------------------------------------------------------
 # Read config file
@@ -81,7 +83,7 @@ unless ($res =~ /^OK/) {
 
 LogNotice("-----------------------------------------------------------------");
 # Executing copying process
-my $res = system("/opt/mmm/mmm_get_dump --host $host_name --copy-method $copy_method");
+my $res = system("$SELF_DIR/sbin/mmm_get_dump --host $host_name --copy-method $copy_method");
 if ($res) {
     LogError("Error: Can't copy data from remote server");
     exit(1);
@@ -175,7 +177,7 @@ sub ShutdownLocalMysql() {
     # Check pid file
     if ($pid_file eq "") {
         LogWarn("Warining: Can't find pid-file option in config file.");
-	$pid_file = "/var/run/mysqld/mysqld.pid";
+	    $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     
     my $cnt;
@@ -259,7 +261,7 @@ sub StartLocalMysql() {
     # Check pid file
     if ($pid_file eq "") {
         LogWarn("Warining: Can't find pid-file option in config file.");
-	$pid_file = "/var/run/mysqld/mysqld.pid";
+	    $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     
     if (-f $pid_file) {
@@ -270,9 +272,9 @@ sub StartLocalMysql() {
     
         # Check process
         my $cnt = kill(0, $pid);
-	if ($cnt) {
-	    return "ERROR: Local mysql is running now with pid = $pid!";
-	}
+	    if ($cnt) {
+	        return "ERROR: Local mysql is running now with pid = $pid!";
+	    }
     }
     
     LogNotice("MySql is not running now. Going to start it...");
@@ -295,17 +297,17 @@ sub CleanupDump() {
     
     my $master_log = $status->{master}->{File};
     unless ($master_log =~ /^(.*)\.(\d+)$/) {
-	return "ERROR: Unknown master binary log file name format ($master_log)!";
+        return "ERROR: Unknown master binary log file name format ($master_log)!";
     }
     
     LogDebug("Deleting master binary logs: $1.*");
     system("find $config->{dest_dir} -name $1.* | xargs rm -vf");
     
     if ($status->{slave} && $status->{slave}->{Relay_Log_File} ne '') {
-	my $slave_log = $status->{slave}->{Relay_Log_File};
-	unless ($slave_log =~ /^(.*)\.(\d+)$/) {
-	    return "ERROR: Unknown relay binary log file name format ($slave_log)!";
-	}
+	    my $slave_log = $status->{slave}->{Relay_Log_File};
+	    unless ($slave_log =~ /^(.*)\.(\d+)$/) {
+	        return "ERROR: Unknown relay binary log file name format ($slave_log)!";
+	    }
     }
     
     LogDebug("Deleting relay binary logs: $1.*");

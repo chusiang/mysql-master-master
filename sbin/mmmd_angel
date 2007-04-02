@@ -1,28 +1,29 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
-use Config;
-use threads;
-use threads::shared;
-use Thread::Queue;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
+use Getopt::Long;
+use IO::Socket;
 use Proc::Daemon;
 use Time::HiRes;
 
-# Check perl for threads support
-$Config{useithreads} or die "Recompile Perl with threads to run this program.";
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
 
 #-----------------------------------------------------------------
 # Read config file
-my $cfg_file = "/opt/mmm/mmm_angel.conf";
-print "Config file: $cfg_file\n";
+my $cfg_file = "mmm_angel.conf";
 our $config = ReadConfig($cfg_file);
+
 my $shutdown = 0;
 
 # Go to background
@@ -64,16 +65,17 @@ sub CheckService($) {
     
     if (CheckPid($pid)) {
         LogDebug("Service '$service->{description}' is OK");
-	return 1;
+	    return 1;
     }
     
     LogTrap("Warning: Service '$service->{description}' is dead! Restarting it...");
     my $res = system("nohup $cmd &> /dev/null &");
     if ($res) {
         LogError("Error: Can't execute command: '$cmd'");
-	SendEmailNotice("'$service->{description}' is dead! Restart try failed!");
-	return 1;
+	    SendEmailNotice("'$service->{description}' is dead! Restart try failed!");
+	    return 1;
     }
+    
     LogTrap("Notice: Service '$service->{description}' has been restarted successfully");
     SendEmailNotice("'$service->{description}' is dead! Restarted successfully!");
     sleep(5);
@@ -108,7 +110,7 @@ sub SendEmailNotice($) {
     my $res = open(SENDMAIL, "|$sendmail");
     unless ($res) { 
         LogError("Error: Cannot open $sendmail: $!");
-	return 1;
+	    return 1;
     }
     print SENDMAIL "From: mmm_mon\@sphere.com\n";
     print SENDMAIL "Subject: [$now] MMM Service failure\n";

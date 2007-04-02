@@ -1,32 +1,34 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
-use Config;
-use threads;
-use threads::shared;
-use Thread::Queue;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
 use Getopt::Long;
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
-require '/opt/mmm/lib/db.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
+require $SELF_DIR . '/lib/db.pm';
 
 #-----------------------------------------------------------------
 #Parse options
 
-my $config_file = "/opt/mmm/mmm_lvm.conf";
+my $config_file = "mmm_lvm.conf";
 my $host_name;
 my $copy_method;
 my $dest_dir;
 
 GetOptions("config=s" => \$config_file,
            "host=s" => \$host_name,
-	   "copy-method=s" => \$copy_method,
-	   "dest-dir=s" => \$dest_dir);
+	       "copy-method=s" => \$copy_method,
+	       "dest-dir=s" => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file
@@ -63,7 +65,7 @@ my $host = $config->{host}->{$this};
 
 LogNotice("-----------------------------------------------------------------");
 # Executing copying process
-my $res = system("/opt/mmm/mmm_get_dump --config $config_file --host $host_name --copy-method $copy_method --dest-dir $dest_dir");
+my $res = system("$SELF_DIR/sbin/mmm_get_dump --config $config_file --host $host_name --copy-method $copy_method --dest-dir $dest_dir");
 if ($res) {
     LogError("Error: Can't copy data from remote server");
     exit(1);

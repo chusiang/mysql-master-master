@@ -29,7 +29,7 @@ sub SpawnChecker($) {
     my ($reader, $writer);
     LogDebug("Spawning checker '$name'...");
 
-    my $pid = open2($reader, $writer, "/opt/mmm/bin/check/checker '$name'");
+    my $pid = open2($reader, $writer, "$SELF_DIR/bin/check/checker '$name'");
     if (!$pid) {
         LogError("Can't spawn checker! Error: $!");
         exit(1);

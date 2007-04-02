@@ -1,13 +1,21 @@
 #!/usr/bin/perl
 
+# Use mandatory external modules
 use strict;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
+
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(dirname(Cwd::abs_path(__FILE__))));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
 
 # Unbuffered io
 $| = 1;
-
-require '/opt/mmm/lib/config.pm';
 
 # Read config file
 my $postfix = "";
@@ -16,7 +24,7 @@ if (scalar(@ARGV) && $ARGV[0] =~ /^@(.*)/) {
     $postfix = "_$1";
 }
 
-my $cfg_file = "/opt/mmm/mmm_mon$postfix.conf";
+my $cfg_file = "mmm_mon$postfix.conf";
 our $config = ReadConfig($cfg_file);
 
 MyExit("ERROR: Usage: <check_name>") if (scalar(@ARGV) < 1);
@@ -25,7 +33,7 @@ MyExit("ERROR: Usage: <check_name>") if (scalar(@ARGV) < 1);
 my $check_name = $ARGV[0];
 
 # Load checker module
-my $module_file = "/opt/mmm/lib/check_modules/$check_name.pm";
+my $module_file = "$SELF_DIR/lib/check_modules/$check_name.pm";
 my $res = do $module_file;
 MyExit("ERROR: Can't load checker module '$check_name'") if (!$res);
 
@@ -82,7 +90,7 @@ sub CheckerLog($) {
     my $msg = shift;
     my $now = strftime("%Y-%m-%d %H:%M:%S", localtime);
     
-    my $f = "/opt/mmm/var/checker/$check_name-" . $config->{cluster} . ".log";
+    my $f = "$SELF_DIR/var/checker/$check_name-" . $config->{cluster} . ".log";
     open(LOG, ">>$f");
     print LOG "[$now]: $$: $msg\n";
     close(LOG);
