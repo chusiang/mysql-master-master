@@ -1,25 +1,30 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
+use Cwd;
+use File::Basename;
+use Data::Dumper;
+use POSIX;
 use Config;
+use Getopt::Long;
 use threads;
 use threads::shared;
 use Thread::Queue;
 use IO::Socket;
-use Data::Dumper;
-use POSIX;
 use Proc::Daemon;
 use Time::HiRes;
 
 # Check perl for threads support
 $Config{useithreads} or die "Recompile Perl with threads to run this program.";
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
-require '/opt/mmm/lib/control.pm';
-require '/opt/mmm/lib/commands.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
+require $SELF_DIR . '/lib/commands.pm';
 
 #-----------------------------------------------------------------
 my $postfix = "";
@@ -28,9 +33,10 @@ if (scalar(@ARGV) && $ARGV[0] =~ /^@(.*)/) {
     $postfix = "_$1";
 }
 
-my $cfg_file = "/opt/mmm/mmm_mon$postfix.conf";
-unless (-f $cfg_file) {
-    print "Error: Can't find monitoring system config ($cfg_file)!\n\tLooks like you are trying to start mmm_control on wrong server or specified wrong cluster name!\n\n";
+my $cfg_file = "mmm_mon$postfix.conf";
+unless (-f "$SELF_DIR/etc/$cfg_file") {
+    print "Error: Can't find monitoring system config ($cfg_file)!\n";
+    print "\tLooks like you are trying to start mmm_control on wrong server or specified wrong cluster name!\n\n";
     exit(1);
 }
 

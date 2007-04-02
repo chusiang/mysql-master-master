@@ -2,27 +2,29 @@
 
 use strict;
 use Config;
-
-#-----------------------------------------------------------------
-# Checking prerequisitres (required modules, options, etc)
-
-CheckPrerequisites();
+use Getopt::Long;
 
 #-----------------------------------------------------------------
 # Parse options
-use Getopt::Long;
 
 our $prefix = "/usr/local/mmm";
 our $symlinks_dir = "/usr/local/sbin";
 our $disable_symlinks = 0;
 our $show_help = 0;
+our $skip_checks = 0;
 
 GetOptions("prefix=s" => \$prefix,
            "disable-symlinks" => \$disable_symlinks,
            "symlinks-dir=s", \$symlinks_dir,
-           "help" => \$show_help);
+           "help" => \$show_help,
+           "skip-checks", \$skip_checks);
            
 ShowUsage() if ($show_help);
+
+#-----------------------------------------------------------------
+# Checking prerequisitres (required modules, options, etc)
+
+CheckPrerequisites() unless ($skip_checks);
 
 #-----------------------------------------------------------------
 # Performing installation (file copying, symlinking, etc)
@@ -39,16 +41,20 @@ sub ShowUsage() {
     print "  --help              Show options list\n";
     print "  --prefix=PREFIX     Specifies installation directory\n";
     print "  --disable-symlinks  Disables symlinks creation for mmm binaries\n";
-    print "  --symlinks-dir=DIR  Specifies target directory for mmm binaries symlinks\n\n";
+    print "  --symlinks-dir=DIR  Specifies target directory for mmm binaries symlinks\n";
+    print "  --skip-checks       Skip all prerequisites checks and force installation\n";
+    print "\n";
     exit(0);
 }
 
 #-----------------------------------------------------------------
 sub CheckPrerequisites() {
+    print "Checking platform support... $^O ";
     unless ($^O eq 'linux') {
-        print "This platform '$^O' is not supported yet. Sorry.\n\n";
+        print "- This platform is not supported yet. Sorry.\n\n";
         exit(1);
     }
+    print "Ok!\n";
     
     unless ($Config{useithreads}) {
         print "Error: This Perl hasn't been configured and built properly for the threads module to work.\n";
@@ -59,7 +65,6 @@ sub CheckPrerequisites() {
     my @modules = (
         'Data::Dumper',
         'POSIX',
-        'Getopt::Long',
         'Cwd',
         'threads',
         'threads::shared',
@@ -77,8 +82,8 @@ sub CheckPrerequisites() {
         print "Checking required module '$module'...";
         my $res = CheckModule($module);
         if ($res) {
-                print "Ok!\n";
-                next;
+            print "Ok!\n";
+            next;
         }
         
         print "\n------------------------------------------------------------\n";

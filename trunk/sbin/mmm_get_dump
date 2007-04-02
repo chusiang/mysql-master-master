@@ -1,38 +1,40 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
-use Config;
-use threads;
-use threads::shared;
-use Thread::Queue;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
 use Getopt::Long;
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
 
 #-----------------------------------------------------------------
 #Parse options
 
-my $config_file = "/opt/mmm/mmm_lvm.conf";
+my $config_file = "mmm_lvm.conf";
 my $host_name;
 my $copy_method;
 my $dest_dir;
 
 GetOptions("config=s" => \$config_file,
            "host=s" => \$host_name,
-	   "copy-method=s" => \$copy_method,
-	   "dest-dir=s" => \$dest_dir);
+	       "copy-method=s" => \$copy_method,
+	       "dest-dir=s" => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file
 our $config = ReadConfig($config_file);
 
 # Directories info parsing
-my @clone_dirs : shared = split(/\,/, $config->{clone_dirs});
+my @clone_dirs = split(/\,/, $config->{clone_dirs});
 $config->{clone_dirs} = \@clone_dirs;
 $config->{dest_dir} = $dest_dir if ($dest_dir ne '');
 
@@ -186,10 +188,11 @@ sub CreateRemoteSnapshot($) {
     my $host_name = shift;
     my $host = $config->{host}->{$host_name};
     my $ssh_host = $host->{ssh_user} . '@' . $host->{ip};
+    my $mmm_dir = $host->{mmm_dir};
     
     # Create and mount snapshot on remote host
     LogDebug("Executing create_snapshot on remote server '$host_name'...");
-    chomp($res = `ssh "$ssh_host" "/opt/mmm/bin/lvm/create_snapshot"`);
+    chomp($res = `ssh "$ssh_host" "$mmm_dir/bin/lvm/create_snapshot"`);
     print "$res\n";
     my @res_lines = split(/\n/, $res);
     my $last_line = pop(@res_lines);
@@ -250,15 +253,14 @@ sub CopyFilesFromRemoteSingleRun($$$) {
     if ($copy_cmd =~ /!(.*)!/) {
         my $sub_tmpl = $1;
         my $sub_cmd = "";
-	for my $dir (@clone_dirs) {
-	    my $partial = $sub_tmpl;
-	    $partial =~ s/%CLONE_DIR%/$dir/ig;
-	    $sub_cmd .= " $partial";
-	}
+	    for my $dir (@clone_dirs) {
+	        my $partial = $sub_tmpl;
+	        $partial =~ s/%CLONE_DIR%/$dir/ig;
+	        $sub_cmd .= " $partial";
+	    }
 	
-	$copy_cmd =~ s/!.*!/$sub_cmd/;
+	    $copy_cmd =~ s/!.*!/$sub_cmd/;
     }
-    
     
     LogDebug("Final command: '$copy_cmd'");
     
@@ -277,10 +279,11 @@ sub RemoveRemoteSnapshot($) {
     my $host_name = shift;
     my $host = $config->{host}->{$host_name};
     my $ssh_host = $host->{ssh_user} . '@' . $host->{ip};
+    my $mmm_dir = $host->{mmm_dir};
     
     # Umount and remove snapshot on remote host
     LogDebug("Executing remove_snapshot on remote server '$host_name'...");
-    chomp($res = `ssh "$ssh_host" "/opt/mmm/bin/lvm/remove_snapshot"`);
+    chomp($res = `ssh "$ssh_host" "$mmm_dir/bin/lvm/remove_snapshot"`);
     print "$res\n";
     my @res_lines = split(/\n/, $res);
     my $last_line = pop(@res_lines);

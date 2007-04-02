@@ -1,39 +1,41 @@
 #!/usr/bin/perl
 
-# Use external modules
+# Use mandatory external modules
 use strict;
-use Config;
-use threads;
-use threads::shared;
-use IO::Socket;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
+use Getopt::Long;
+use IO::Socket;
 use Proc::Daemon;
+use Time::HiRes;
 
-# Check perl for threads support
-$Config{useithreads} or die "Recompile Perl with threads to run this program.";
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
-# Include parts of system
-require '/opt/mmm/lib/config.pm';
-require '/opt/mmm/lib/log.pm';
-require '/opt/mmm/lib/agent_commands.pm';
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
+require $SELF_DIR . '/lib/log.pm';
+require $SELF_DIR . '/lib/agent_commands.pm';
 
 #-----------------------------------------------------------------
 # Read config file
-our $config : shared = ReadConfig("/opt/mmm/mmm_agent.conf");
+our $config = ReadConfig("mmm_agent.conf");
 
 # We need to know how previous session has been finished
-our $unclean_start : shared = CheckPidFile();
+our $unclean_start = CheckPidFile();
 
 # Go to background
 Proc::Daemon::Init if ($config->{debug} =~ /^(off|no|0)$/i);
 CreatePidFile();
 
 # Shutdown flag
-our $shutdown : shared = 0;
+our $shutdown = 0;
 
 # Start time to calculate uptime
-our $start_time : shared = time();
+our $start_time = time();
 
 # Catch signals
 $SIG{INT} = \&SignalHandler;

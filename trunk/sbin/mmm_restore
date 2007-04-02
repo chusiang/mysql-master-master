@@ -10,7 +10,7 @@ use Config;
 use Getopt::Long;
 
 # Determine installation dir name
-our $SELF_DIR = dirname(Cwd::abs_path(__FILE__));
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
 # Include parts of the system
 require $SELF_DIR . '/lib/config.pm';

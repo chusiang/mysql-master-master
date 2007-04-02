@@ -1,17 +1,23 @@
 #!/usr/bin/perl
 
+# Use mandatory external modules
 use strict;
-use threads;
-use threads::shared;
-use IO::Socket;
+use Cwd;
+use File::Basename;
 use Data::Dumper;
 use POSIX;
+use Config;
+use Time::HiRes;
 use DBI;
 
-require '/opt/mmm/lib/config.pm';
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/config.pm';
 
 # Read config file and status
-our $config = ReadConfig("/opt/mmm/mmm_agent.conf");
+our $config = ReadConfig("mmm_agent.conf");
 
 print TurnOnSlave();
 
