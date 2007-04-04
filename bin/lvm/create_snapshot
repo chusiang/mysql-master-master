@@ -8,6 +8,7 @@ use Data::Dumper;
 use POSIX;
 use Config;
 use Time::HiRes;
+use DBI;
 
 # Determine installation dir name
 our $SELF_DIR = dirname(dirname(dirname(Cwd::abs_path(__FILE__))));
