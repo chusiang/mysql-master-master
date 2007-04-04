@@ -184,8 +184,10 @@ exit(0);
 sub PrintUsage($) {
     my $error = shift;
     print "ERROR: $error\n\n";
-    print "Usage: $0 [--config <config file>] --backup-dir <dir> [--mode <mode>] [--version <version | list>] --dry-run\n";
+    print "Usage: $0 [--config <config file>] --backup-dir <dir> [--mode <mode>] [--data-dir <dir>] [--version <version | list>] --dry-run\n";
     print "Where:\n";
+    print "  Backup Dir: directory where backup resides\n";
+    print "  Data Dir: datadir of local mysql installation\n";
     print "  Mode: " . join(', ', @known_modes) . "\n";
     print "  Version: \n";
     print "    - when run with 'list' parameter, displays available versions of incremental backups\n";

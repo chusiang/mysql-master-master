@@ -188,7 +188,7 @@ sub CreateRemoteSnapshot($) {
     my $host_name = shift;
     my $host = $config->{host}->{$host_name};
     my $ssh_host = $host->{ssh_user} . '@' . $host->{ip};
-    my $mmm_dir = $host->{mmm_dir};
+    my $mmm_dir = $host->{mmm_dir} || "/usr/local/mmm";
     
     # Create and mount snapshot on remote host
     LogDebug("Executing create_snapshot on remote server '$host_name'...");
@@ -279,7 +279,7 @@ sub RemoveRemoteSnapshot($) {
     my $host_name = shift;
     my $host = $config->{host}->{$host_name};
     my $ssh_host = $host->{ssh_user} . '@' . $host->{ip};
-    my $mmm_dir = $host->{mmm_dir};
+    my $mmm_dir = $host->{mmm_dir} || "/usr/local/mmm";
     
     # Umount and remove snapshot on remote host
     LogDebug("Executing remove_snapshot on remote server '$host_name'...");
