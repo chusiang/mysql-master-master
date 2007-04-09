@@ -136,17 +136,17 @@ sub CreateRolesList() {
         $roles->{$role} = &share({});
         $roles->{$role}->{mode} = $cfg_roles->{$role}->{mode};
 	
-	# Parse servers
+	    # Parse servers
         my @role_servers : shared = split(/\s*\,\s*/, $cfg_roles->{$role}->{servers});
         $roles->{$role}->{hosts} = \@role_servers; 
         
-	# Link with parent role
+	    # Link with parent role
         $roles->{$role}->{child_roles} = &share({});
-	my $parent_role = $cfg_roles->{$role}->{parent_role};
-	$roles->{$role}->{parent_role} = $parent_role;
-	if ($parent_role) {
-	    $roles->{$parent_role}->{child_roles}->{$role} = 1;
-	}
+	    my $parent_role = $cfg_roles->{$role}->{parent_role};
+	    $roles->{$role}->{parent_role} = $parent_role;
+	    if ($parent_role) {
+	        $roles->{$parent_role}->{child_roles}->{$role} = 1;
+	    }
 
         # Parse IPs
         my @ips = split(/\s*\,\s*/, $cfg_roles->{$role}->{ip});
@@ -178,7 +178,7 @@ sub GetServerRoles($) {
             my $role_info = {};
             $role_info->{name} = $role_name;
             $role_info->{ip} = $ip;
-	    $role_info->{parent_host} = ($role->{parent_role} ne '')? GetExclusiveRoleOwner($role->{parent_role}) : "";
+            $role_info->{parent_host} = ($role->{parent_role} ne '')? GetExclusiveRoleOwner($role->{parent_role}) : "";
             
             push(@roles_info, $role_info);
         }
@@ -287,15 +287,15 @@ sub ClearChildRoles($) {
     # And check all of them
     foreach my $child (keys(%$child_roles)) {
         my $child_ips = $roles->{$child}->{ips};
-	my @child_hosts;
+	    my @child_hosts;
 
-	# Check all ips of child role
-	foreach my $child_ip (keys(%$child_ips)) {
-	    # And select not null records
-	    next if ($child_ips->{$child_ip}->{assigned_to} eq '');
-	    push(@child_hosts, $child_ips->{$child_ip}->{assigned_to});
-	    $child_ips->{$child_ip}->{assigned_to} = "";
-	}
+	    # Check all ips of child role
+	    foreach my $child_ip (keys(%$child_ips)) {
+	        # And select not null records
+	        next if ($child_ips->{$child_ip}->{assigned_to} eq '');
+	        push(@child_hosts, $child_ips->{$child_ip}->{assigned_to});
+	        $child_ips->{$child_ip}->{assigned_to} = "";
+	    }
 		
         LogNotice("Found dependent child role '$child'. Clearing it too. Affected hosts: " . join(',', @child_hosts));
         push(@affected_hosts, @child_hosts);
@@ -315,7 +315,7 @@ sub ClearServerRoles($) {
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
         
-	# Check all ips
+	    # Check all ips
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
 
@@ -350,8 +350,8 @@ sub GetSlavesList() {
     my $hosts = $config->{host};
     foreach my $host (keys(%$hosts)) {
         if ($hosts->{$host}->{mode} eq 'slave') {
-	    push (@slaves, $host);
-	}
+	        push (@slaves, $host);
+	    }
     }
     
     return \@slaves;
@@ -432,7 +432,7 @@ sub ProcessOrphanedRoles() {
         my $role_ips = $role->{ips};
 
         # Skip child roles with orphaned parents        
-	next if (IsOrphanedRole($role->{parent_role}));
+        next if (IsOrphanedRole($role->{parent_role}));
 	
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
@@ -526,7 +526,7 @@ sub BalanceRoles() {
         next unless ($role->{mode} eq 'balanced');
 
         # Skip child roles with orphaned parents
-	next if (IsOrphanedRole($role->{parent_role}));
+	    next if (IsOrphanedRole($role->{parent_role}));
 
         my $hosts = FindAllEligibleHosts($role_name);
         next if (scalar(keys(%$hosts)) < 2);
@@ -638,7 +638,7 @@ sub IsOrphanedRole($) {
     my $ip = $all_ips[0];
     my $old_owner = $role_ips->{$ip}->{assigned_to};
 
-    return ($role_ips->{$ip}->{assigned_to} eq "");
+    return ($old_owner eq "");
 }
 
 1;
