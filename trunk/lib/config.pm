@@ -359,13 +359,11 @@ sub GetSlavesList() {
 
 
 #-----------------------------------------------------------------
-sub CountHostRoles($$) {
+sub CountHostRoles($) {
     my $host = shift;
-    my $check_role = shift;
 
     my $cnt = 0;
     foreach my $role_name (keys(%$roles)) {
-        next unless ($role_name eq $check_role);
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
         
@@ -374,7 +372,6 @@ sub CountHostRoles($$) {
             next unless ($ip_info->{assigned_to} eq $host);
             $cnt++;
         }
-        last;
     }
     
     return $cnt;
@@ -391,7 +388,7 @@ sub FindEligibleHost($$) {
 
     foreach my $host (@$role_hosts) {
         next unless ($servers_status->{$host}->{state} eq 'ONLINE');
-        my $cnt = CountHostRoles($host, $role_name);
+        my $cnt = CountHostRoles($host);
         if ($cnt < $min_count || $min_name eq "") {
             $min_name = $host;
             $min_count = $cnt;
@@ -478,7 +475,7 @@ sub FindAllEligibleHosts($) {
 
     foreach my $host (@$role_hosts) {
         next unless ($servers_status->{$host}->{state} eq 'ONLINE');
-        my $cnt = CountHostRoles($host, $role_name);
+        my $cnt = CountHostRoles($host);
         $eligible_hosts->{$host} = $cnt;
     }
     
