@@ -161,7 +161,7 @@ sub CheckServersStates() {
 	}
         
         # REPLICATION_FAIL || REPLICATION_DELAY -> HARD_OFFLINE
-        if (($host->{state} eq 'REPLICATION_FAIL' || host->{state} eq 'REPLICATION_DELAY') && (!$host_checks->{ping} || !$host_checks->{mysql})) {
+        if (($host->{state} eq 'REPLICATION_FAIL' || $host->{state} eq 'REPLICATION_DELAY') && (!$host_checks->{ping} || !$host_checks->{mysql})) {
             LogTrap("Daemon: State change($host_name): $host->{state} -> HARD_OFFLINE");
             $host->{state} = 'HARD_OFFLINE';
             
@@ -277,8 +277,8 @@ sub CheckServersStates() {
         if (($host->{state} eq 'REPLICATION_DELAY' || $host->{state} eq 'REPLICATION_FAIL') 
 	     && $host_checks->{ping} 
 	     && $host_checks->{mysql} 
-	     && $host_checks->{rep_backlog} 
-	     && $host_checks->{rep_threads}) 
+	     && (($host_checks->{rep_backlog} && $host_checks->{rep_threads}) || $peer->{state} ne 'ONLINE')
+	   )
 	    {
             LogTrap("Daemon: State change($host_name): $host->{state} -> ONLINE");
             
