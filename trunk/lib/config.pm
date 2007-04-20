@@ -429,7 +429,7 @@ sub ProcessOrphanedRoles() {
         my $role_ips = $role->{ips};
 
         # Skip child roles with orphaned parents        
-        next if (IsOrphanedRole($role->{parent_role}));
+	    next if (IsOrphanedRole($role->{parent_role}));
 	
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
