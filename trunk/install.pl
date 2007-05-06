@@ -139,7 +139,7 @@ sub CopyFiles() {
 #-----------------------------------------------------------------
 sub CreateSymlinks() {
     SymlinkFiles("$prefix/sbin", $sbin_dir, 0755);
-    SymlinkFiles("$prefix/man/1", "$man_dir/1", 0644);
+    SymlinkFiles("$prefix/man/man1", "$man_dir/man1", 0644);
 }
 
 #-----------------------------------------------------------------
