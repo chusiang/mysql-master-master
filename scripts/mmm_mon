@@ -4,62 +4,60 @@
 #              the mmm monitoring daemon.
 #
 # chkconfig: - 64 36
-# description:	MMM Monitor.
+# description:  MMM Monitor.
 # processname: mmmd_mon
-# config: /opt/mmm/mmm_mont.conf
-# pidfile: /opt/mmm/var/mmmd_mon.pid
+# config: /usr/local/mmm/etc/mmm_mont.conf
+# pidfile: /usr/local/mmm/var/mmmd_mon.pid
 
 # Cluster name (it can be empty for default cases)
 CLUSTER=''
 
 # Paths
-MMMD_BASE="/opt/mmm"
+MMMD_BASE="/usr/local/mmm"
 
 #-----------------------------------------------------------------------
 if [ "$CLUSTER" != "" ]; then
-    MMMD_BIN="${MMMD_BASE}/mmmd_mon @$CLUSTER"
+    MMMD_BIN="${MMMD_BASE}/sbin/mmmd_mon @$CLUSTER"
     MMMD_PIDFILE="${MMMD_BASE}/var/mmmd-$CLUSTER.pid"
 else 
-    MMMD_BIN="${MMMD_BASE}/mmmd_mon"
+    MMMD_BIN="${MMMD_BASE}/sbin/mmmd_mon"
     MMMD_PIDFILE="${MMMD_BASE}/var/mmmd.pid"
 fi
 
 echo "Daemon bin: '$MMMD_BIN'"
 echo "Daemon pid: '$MMMD_PIDFILE'"
 
-exit 0
-
 #-----------------------------------------------------------------------
 # See how we were called.
 case "$1" in
   start)
-	# Start daemon.
-	echo -n "Starting MMM Monitor daemon: "
-	$MMMD_AGENT_BIN $CLUSTER
-	RETVAL=$?
-	echo "Ok"
-	;;
+        # Start daemon.
+        echo -n "Starting MMM Monitor daemon: "
+        $MMMD_BIN
+        RETVAL=$?
+        echo "Ok"
+        ;;
 
   stop)
-	# Stop daemon.
-	echo -n "Shutting down MMM Monitor daemon: "
-	kill `cat $MMMD_AGENT_PIDFILE`
-	RETVAL=$?
-	echo "Ok"
-	;;
+        # Stop daemon.
+        echo -n "Shutting down MMM Monitor daemon: "
+        kill `cat $MMMD_PIDFILE`
+        RETVAL=$?
+        echo "Ok"
+        ;;
 
   restart|reload)
-	$0 stop
-	echo -n "Waiting 10 sec before restart...";
-	sleep 10
-	echo "Ok"
-	$0 start
-	;;
+        $0 stop
+        echo -n "Waiting 10 sec before restart...";
+        sleep 10
+        echo "Ok"
+        $0 start
+        ;;
 
   *)
-	echo "Usage: $0 {start|stop|restart}"
-	RETVAL=1
-	;;
+        echo "Usage: $0 {start|stop|restart}"
+        RETVAL=1
+        ;;
 esac
 
 exit $RETVAL
