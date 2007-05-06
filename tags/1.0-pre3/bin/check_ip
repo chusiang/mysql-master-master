@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+# Use mandatory external modules
+use strict;
+use Cwd;
+use File::Basename;
+use Data::Dumper;
+use POSIX;
+use Config;
+
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+use strict;
+
+if (scalar(@ARGV) < 2) {
+    print "Usage: $0 <ip-address> <interface>\n\n";
+    exit(1);
+}
+
+my $ip = $ARGV[0];
+my $iface = $ARGV[1];
+
+# Check if ip is already here
+my $ip_check = `/sbin/ip addr show`;
+if ($ip_check  =~ /$ip/) {
+    print "OK: IP address is already here\n";
+    exit(0);
+}
+
+# Get params for send_arp
+my $ipaddr = `/sbin/ifconfig $iface`;
+
+# Get ethernet address
+$ipaddr =~ /HWaddr\s*([0-9A-F\:]+)/i;
+my $if_eth = $1;
+
+# Get broadcast address and netmask
+$ipaddr =~ /Bcast:\s*([\d\.]+)\s*Mask:\s*([\d\.]+)/i;
+my $if_bcast = $1;
+my $if_mask = $2;
+
+# Add ip address to interface
+`/sbin/ip addr add $ip/32 dev $iface`;
+
+# Notify all about new ethernet address for ip
+`$SELF_DIR/bin/sys/send_arp -i 100 -r 5 -p /tmp/send_arp $iface $ip auto $if_bcast $if_mask`;
+
+print "OK\n";
+exit(0);
