@@ -53,7 +53,7 @@ sub ShowUsage() {
 #-----------------------------------------------------------------
 sub CheckPrerequisites() {
     print "Checking platform support... $^O ";
-    unless ($^O eq 'linux') {
+    unless ($^O eq 'linux' || $^O eq 'solaris') {
         print "- This platform is not supported yet. Sorry.\n\n";
         exit(1);
     }
