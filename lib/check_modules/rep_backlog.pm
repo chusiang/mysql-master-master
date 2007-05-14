@@ -14,33 +14,41 @@ sub PerformCheck($$) {
     my $port = $peer->{port};
     my $user = $peer->{user};
     my $pass = $peer->{password};
-    
-    # connect to server
-    my $dsn = "DBI:mysql:host=$host;port=$port";
-    my $dbh = DBI->connect($dsn, $user, $pass, { PrintError => 0 });
-    return "UNKNOWN: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr unless ($dbh);
-    
-    # Check server (replication backlog)
-    my $sth = $dbh->prepare("SHOW SLAVE STATUS");
-    my $res = $sth->execute;
 
-    unless($res) {
+    eval {
+        local $SIG{ALRM} = sub { die "TIMEOUT"; };
+        alarm($timeout);
+        
+        # connect to server
+        my $dsn = "DBI:mysql:host=$host;port=$port;mysql_connect_timeout=$timeout";
+        my $dbh = DBI->connect($dsn, $user, $pass, { PrintError => 0 });
+        return "UNKNOWN: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr unless ($dbh);
+    
+        # Check server (replication backlog)
+        my $sth = $dbh->prepare("SHOW SLAVE STATUS");
+        my $res = $sth->execute;
+
+        unless($res) {
+            $sth->finish;
+            $dbh->disconnect();
+            $dbh = undef;
+            return "UNKNOWN: Unknown state. Execute error: " . $dbh->errstr;
+        }
+    
+        my $status = $sth->fetchrow_hashref;
         $sth->finish;
-	$dbh->disconnect();
+        $dbh->disconnect();
         $dbh = undef;
-	return "UNKNOWN: Unknown state. Execute error: " . $dbh->errstr;
-    }
     
-    my $status = $sth->fetchrow_hashref;
-    $sth->finish;
-    $dbh->disconnect();
-    $dbh = undef;
-    
-    # Check backlog size
-    my $backlog = $status->{Seconds_Behind_Master};
+        # Check backlog size
+        my $backlog = $status->{Seconds_Behind_Master};
 
-    return "OK: Backlog is null" if ($backlog eq '');
-    return "ERROR: Backlog is too big" if ($backlog > $config->{check}->{rep_backlog}->{max_backlog});
+        return "OK: Backlog is null" if ($backlog eq '');
+        return "ERROR: Backlog is too big" if ($backlog > $config->{check}->{rep_backlog}->{max_backlog});
+    };
+
+    alarm(0);
+    return 'ERROR: Timeout' if ($@ =~ /^TIMEOUT/);    
     return "OK";
 }
 
