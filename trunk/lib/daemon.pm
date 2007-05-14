@@ -320,16 +320,16 @@ sub SendStatusToAgent($) {
     }
 
     if ($res =~ /(.*)\|.*UP\:(.*)/) {
-	$res = $1;
+	    $res = $1;
         my $uptime = $2;
-	LogDebug("Daemon: Got uptime from $host_name: $uptime");
+	    LogDebug("Daemon: Got uptime from $host_name: $uptime");
 
-	$status->{uptime} = 0 + $uptime;
-	if ($status->{state} eq 'ONLINE') {
-	    $status->{last_uptime} = $status->{uptime};
-	}
+	    $status->{uptime} = 0 + $uptime;
+	    if ($status->{state} eq 'ONLINE') {
+	        $status->{last_uptime} = $status->{uptime};
+	    }
 
-	LogDebug(Dumper($status));
+	    LogDebug(Dumper($status));
     }
 
     return $res;
