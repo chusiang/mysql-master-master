@@ -32,7 +32,7 @@ sub SendAgentCommand {
     
     my $status = $servers_status->{$host};
     if ($status->{state} =~ /_OFFLINE$/) {
-        LogInfo("Daemon: Skipping SendAgentCommand to $host because of $status->{state} status");
+        LogNotice("Daemon: Skipping SendAgentCommand to $host because of $status->{state} status");
         return "OK: Skipped!";
     }
         
