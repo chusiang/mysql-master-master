@@ -30,6 +30,12 @@ sub SendAgentCommand {
     my $cmd = shift;
     my @params = @_;
     
+    my $status = $servers_status->{$host};
+    if ($status->{state} =~ /_OFFLINE$/) {
+        LogInfo("Daemon: Skipping SendAgentCommand to $host because of $status->{state} status");
+        return "OK: Skipped!";
+    }
+        
     my $ip = $config->{host}->{$host}->{ip};
     if (!$ip) {
         LogError("Invalid configration! Can't find agent ip!");
@@ -40,7 +46,8 @@ sub SendAgentCommand {
     my $sock = IO::Socket::INET->new(
         PeerAddr => $ip,
         PeerPort => $config->{agent_port},
-        Proto => 'tcp'
+        Proto => 'tcp',
+        Timeout => 10
     );
     return 0 unless ($sock && $sock->connected);
     
