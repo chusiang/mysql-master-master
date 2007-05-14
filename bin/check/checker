@@ -37,6 +37,9 @@ my $module_file = "$SELF_DIR/lib/check_modules/$check_name.pm";
 my $res = do $module_file;
 MyExit("ERROR: Can't load checker module '$check_name'") if (!$res);
 
+# Read timeout from config file
+our $timeout = $config->{check}->{$check_name}->{timeout};
+
 # Process loop
 while (!eof(STDIN)) {
     CheckerLog("Loop start...");
@@ -65,7 +68,7 @@ while (!eof(STDIN)) {
     # Process command and output result
     if ($command[0] eq 'check') {
         CheckerLog("Pre check...");
-        print PerformCheck(10, $command[1]) . "\n";
+        print PerformCheck($timeout, $command[1]) . "\n";
         CheckerLog("Post check...");
 	    next;
     }
