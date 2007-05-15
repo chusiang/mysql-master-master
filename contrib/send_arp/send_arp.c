@@ -28,15 +28,10 @@
  *
  */
 
-#include "portability.h"
-
 #include <limits.h>
 #include <libnet.h>
 #include <libgen.h>
 #include <syslog.h>
-
-//#define HAVE_LIBNET_1_0_API
-#define HAVE_LIBNET_1_1_API
 
 #ifdef HAVE_LIBNET_1_0_API
 #	define	LTYPE	struct libnet_link_int
