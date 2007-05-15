@@ -128,7 +128,7 @@ x_libraries=NONE
 # and all the variables that are supposed to be based on exec_prefix
 # by default will actually change.
 # Use braces instead of parens because sh, perl, etc. also accept them.
-bindir='${exec_prefix}/bin'
+bindir='../../bin/sys'
 sbindir='${exec_prefix}/sbin'
 libexecdir='${exec_prefix}/libexec'
 datadir='${prefix}/share'
@@ -454,7 +454,7 @@ if test -n "$ac_prev"; then
 fi
 
 # Be sure to have absolute paths.
-for ac_var in bindir sbindir libexecdir datadir sysconfdir sharedstatedir \
+for ac_var in sbindir libexecdir datadir sysconfdir sharedstatedir \
               localstatedir libdir includedir oldincludedir infodir mandir \
               exec_prefix prefix
 do
