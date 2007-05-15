@@ -1,10 +1,13 @@
 all: send_arp
 
+FLAGS = `libnet-config --defines --cflags`
+LIBS = `libnet-config --libs` -lnet
+
 send_arp.o:   send_arp.c
-	gcc -o send_arp.o -c send_arp.c
+	gcc -o send_arp.o $(FLAGS) -c send_arp.c 
 
 send_arp: send_arp.o
-	gcc -o send_arp send_arp.o -lnet -static -s
+	gcc -o send_arp send_arp.o $(LIBS) -s
 
 clean:
 	rm -f send_arp send_arp.o
