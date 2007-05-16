@@ -112,7 +112,7 @@ sub SendEmailNotice($) {
         LogError("Error: Cannot open $sendmail: $!");
 	    return 1;
     }
-    print SENDMAIL "From: mmm_mon\@sphere.com\n";
+    print SENDMAIL "From: mmm_mon\@kovyrin.net\n";
     print SENDMAIL "Subject: [$now] MMM Service failure\n";
     print SENDMAIL "To: $config->{admin_email}\n\n";
     print SENDMAIL "$now: $msg\n";

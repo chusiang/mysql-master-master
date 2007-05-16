@@ -6,7 +6,7 @@
 debug yes
 
 # Paths
-pid_path /opt/mmm/var/mmm-angel.pid
+pid_path /usr/local/mmm/var/mmm-angel.pid
 
 # Logging setup
 log mydebug

@@ -56,7 +56,7 @@ host dbr1
     my_cnf /etc/my.cnf
     rc_script /etc/init.d/mysql
     pid_file /data/mysql/dbr1.pid
-    mmm_dir /opt/mmm
+    mmm_dir /usr/local/mmm
 
 host dbr2
     ip 172.16.1.2
@@ -72,5 +72,5 @@ host dbr2
     my_cnf /etc/my.cnf
     rc_script /etc/init.d/mysql
     pid_file /data/mysql/dbr2.pid
-    mmm_dir /opt/mmm
+    mmm_dir /usr/local/mmm
 
