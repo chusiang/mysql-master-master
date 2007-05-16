@@ -26,7 +26,7 @@ sub CommandMain() {
         while (my $cmd = <$new_sock>) {
             chomp($cmd);
             my $res = HandleCommand($cmd);
-            chomp(my $uptime = `cat /proc/uptime | cut -d ' ' -f 1 -`);
+            my $uptime = GetUptime();
             $new_sock->send("$res|UP:$uptime\n");
             LogDebug("Daemon: Answer = '$res'");
             return 0 if ($shutdown);
@@ -171,6 +171,24 @@ sub SetStatusCommand($) {
     LogDebug("State: $server_state");
     
     return "OK: Status applied successfully!";
+}
+
+#-----------------------------------------------------------------
+sub GetUptime() {
+    if ($^O eq 'linux') {
+        chomp(my $uptime = `cat /proc/uptime | cut -d ' ' -f 1 -`);
+        return $uptime;
+    }
+    
+    if ($^O eq 'solaris') {
+        my $uptime_path = "$SELF_DIR/bin/sys/uptime_sec";
+        return 0 unless (-f $uptime_path && -x $uptime_path);
+        chomp(my $uptime = `$uptime_path`);
+        $uptime = 0 + $uptime;
+        return $uptime;
+    }
+    
+    die("Unsupported platform - can't get uptime!\n");
 }
 
 1;

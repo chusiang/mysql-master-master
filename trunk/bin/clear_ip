@@ -1,7 +1,17 @@
 #!/usr/bin/env perl
 
+# Use mandatory external modules
 use strict;
+use Cwd;
+use File::Basename;
 
+# Determine installation dir name
+our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include parts of the system
+require $SELF_DIR . '/lib/ifconfig.pm';
+
+# Check params
 if (scalar(@ARGV) < 2) {
     print "Usage: $0 <ip-address> <interface>\n\n";
     exit(1);
@@ -11,14 +21,10 @@ my $ip = $ARGV[0];
 my $iface = $ARGV[1];
 
 # Check if ip is here
-my $ip_check = `/sbin/ip addr show`;
-unless ($ip_check  =~ /$ip/) {
-    print "OK: IP address is not here\n";
-    exit(0);
-}
+CheckInterfaceIP($iface, $ip, 0);
 
+# Clear ip
+ClearInterfaceIP($iface, $ip);
 
-`/sbin/ip addr del $ip/32 dev $iface`;
-
-print "OK\n";
+print "OK: IP deleted\n";
 exit(0);
