@@ -15,7 +15,7 @@ sub PerformCheck($$) {
     my $user = $peer->{user};
     my $pass = $peer->{password};
     
-    eval {
+    my $res = eval {
         local $SIG{ALRM} = sub { die "TIMEOUT"; };
         alarm($timeout);
         
@@ -41,9 +41,11 @@ sub PerformCheck($$) {
         $dbh = undef;
 
         alarm(0);
-    };
-
+        return 0;
+    };    
     alarm(0);
+
+    return $res if ($res);
     return 'ERROR: Timeout' if ($@ =~ /^TIMEOUT/);
     return "OK";
 }
