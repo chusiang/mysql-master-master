@@ -6,17 +6,17 @@
 debug no
 
 # Paths
-pid_path /opt/mmm/var/mmmd.pid
-status_path /opt/mmm/var/mmmd.status
-bin_path /opt/mmm/bin
+pid_path /usr/local/mmm/var/mmmd.pid
+status_path /usr/local/mmm/var/mmmd.status
+bin_path /usr/local/mmm/bin
 
 # Logging setup
 log mydebug 
-    file /opt/mmm/var/mmm-debug.log
+    file /usr/local/mmm/var/mmm-debug.log
     level debug
 
 log mytraps 
-    file /opt/mmm/var/mmm-traps.log
+    file /usr/local/mmm/var/mmm-traps.log
     level trap
 
 
