@@ -42,7 +42,7 @@ sub AddInterfaceIP($$) {
     my $ip = shift;
     
     if ($^O eq 'linux') {
-        `/sbin/ip addr del $ip/32 dev $if`;
+        `/sbin/ip addr add $ip/32 dev $if`;
     } elsif ($^O eq 'solaris') {
         `/usr/sbin/ifconfig $if addif $ip`;
     } else {
