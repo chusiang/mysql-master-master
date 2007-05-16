@@ -15,7 +15,7 @@ sub PerformCheck($$) {
     my $user = $peer->{user};
     my $pass = $peer->{password};
 
-    eval {
+    my $res = eval {
         local $SIG{ALRM} = sub { die "TIMEOUT"; };
         alarm($timeout);
     
@@ -41,13 +41,15 @@ sub PerformCheck($$) {
         $dbh->disconnect();
         $dbh = undef;
 
-    # Check peer replication state
+        # Check peer replication state
         if ($status->{Slave_IO_Running} eq 'No' || $status->{Slave_SQL_Running} eq 'No') {
             return "ERROR: Replication is broken";
         }
+        return 0;
     };
-    
     alarm(0);
+
+    return $res if ($res);
     return 'ERROR: Timeout' if ($@ =~ /^TIMEOUT/);
     return "OK";
 }
