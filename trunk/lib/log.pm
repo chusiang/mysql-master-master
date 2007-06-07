@@ -33,6 +33,26 @@ sub LogTrap($) {
 }
 
 #-----------------------------------------------------------------
+sub SendEmailNotice($$) {
+    my $msg = shift;
+    my $email = shift;
+    
+    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime);
+    
+    my $sendmail = "/usr/sbin/sendmail -t";
+    my $res = open(SENDMAIL, "|$sendmail");
+    unless ($res) { 
+        LogError("Error: Cannot open $sendmail: $!");
+	    return 1;
+    }
+    print SENDMAIL "From: mmm_mon\@kovyrin.net\n";
+    print SENDMAIL "Subject: [$now] MMM Notification\n";
+    print SENDMAIL "To: $email\n\n";
+    print SENDMAIL "$now: $msg\n";
+    close(SENDMAIL);
+}
+
+#-----------------------------------------------------------------
 sub PrintLog {
     my $msg = shift;
     my $log_level = shift;
@@ -50,6 +70,10 @@ sub PrintLog {
         seek(LOG, 0, 2);    
         print(LOG "[$now]: $$: $msg\n");
         flock(LOG, LOCK_UN);
+        
+        if ($log->{email}) {
+            SendEmailNotice($msg, $log->{email});
+        }
     }
     
     unless ($config->{debug} =~ /^(off|no|0)$/i) {
