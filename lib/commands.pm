@@ -31,8 +31,10 @@ sub SendAgentCommand {
     my @params = @_;
     
     my $status = $servers_status->{$host};
-    if ($status->{state} =~ /_OFFLINE$/) {
-        LogNotice("Daemon: Skipping SendAgentCommand to $host because of $status->{state} status");
+    my $check_status = $checks_status->{$host};
+    
+    if ($status->{state} =~ /_OFFLINE$/ && !$check_status->{ping}) {
+        LogNotice("Daemon: Skipping SendAgentCommand to $host because of $status->{state} status and ping check failed");
         return "OK: Skipped!";
     }
         

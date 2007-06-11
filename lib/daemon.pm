@@ -143,22 +143,22 @@ sub CheckServersStates() {
         }
 
         # AWAITING_RECOVERY -> ONLINE (if hard_offline period was short and uptime is not decreased)
-	if ($host->{state} eq 'AWAITING_RECOVERY' && $host_checks->{ping} && $host_checks->{mysql} && $host_checks->{rep_backlog} && $host_checks->{rep_threads}) {
-	    my $uptime_diff = $host->{uptime} - $host->{last_uptime};
-	    LogDebug("AWAITING_RECOVERY state on $host_name... Uptime change is $uptime_diff");
-	    if ($host->{last_uptime} > 0 && $uptime_diff > 0 && $uptime_diff < 60) {
-        	# Server is online now
+	    if ($host->{state} eq 'AWAITING_RECOVERY' && $host_checks->{ping} && $host_checks->{mysql} && $host_checks->{rep_backlog} && $host_checks->{rep_threads}) {
+	        my $uptime_diff = $host->{uptime} - $host->{last_uptime};
+	        LogDebug("AWAITING_RECOVERY state on $host_name... Uptime change is $uptime_diff");
+	        if ($host->{last_uptime} > 0 && $uptime_diff > 0 && $uptime_diff < 60) {
+        	    # Server is online now
                 $host->{state} = 'ONLINE';
     
                 LogTrap("Daemon: State change($host_name): AWAITING_RECOVERY -> ONLINE. Uptime diff = $uptime_diff seconds");
 
-	        # Notify host about its state
-    		my $res = SendStatusToAgent($host_name);
+	            # Notify host about its state
+    		    my $res = SendStatusToAgent($host_name);
             
-        	$cnt++;
-        	next;
+        	    $cnt++;
+        	    next;
+	        }
 	    }
-	}
         
         # REPLICATION_FAIL || REPLICATION_DELAY -> HARD_OFFLINE
         if (($host->{state} eq 'REPLICATION_FAIL' || $host->{state} eq 'REPLICATION_DELAY') && (!$host_checks->{ping} || !$host_checks->{mysql})) {
@@ -166,7 +166,7 @@ sub CheckServersStates() {
             $host->{state} = 'HARD_OFFLINE';
             
             # Trying to send status to host
-	    my $res = SendStatusToAgent($host_name);
+	        my $res = SendStatusToAgent($host_name);
             if (!$res) {
                 LogNotice("Can't send offline status notification to '$host_name'! Killing it!");
                 ExecuteBin('kill_host', $host_name);
@@ -278,8 +278,7 @@ sub CheckServersStates() {
 	     && $host_checks->{ping} 
 	     && $host_checks->{mysql} 
 	     && (($host_checks->{rep_backlog} && $host_checks->{rep_threads}) || $peer->{state} ne 'ONLINE')
-	   )
-	    {
+	    ) {
             LogTrap("Daemon: State change($host_name): $host->{state} -> ONLINE");
             
             # Server is online now
