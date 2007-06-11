@@ -33,7 +33,7 @@ sub LogTrap($) {
 }
 
 #-----------------------------------------------------------------
-sub SendEmailNotice($$) {
+sub SendLogEmailNotice($$) {
     my $msg = shift;
     my $email = shift;
     
@@ -72,7 +72,7 @@ sub PrintLog {
         flock(LOG, LOCK_UN);
         
         if ($log->{email}) {
-            SendEmailNotice($msg, $log->{email});
+            SendLogEmailNotice($msg, $log->{email});
         }
     }
     
