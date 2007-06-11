@@ -11,7 +11,7 @@ use Getopt::Long;
 use threads;
 use threads::shared;
 use Thread::Queue;
-use Thread::Semaphore;
+#use Thread::Semaphore;
 use IO::Socket;
 use Proc::Daemon;
 use Time::HiRes;
@@ -22,6 +22,9 @@ $Config{useithreads} or die "Recompile Perl with threads to run this program.";
 
 # Determine installation dir name
 our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+# Include semaphores bug fix
+require $SELF_DIR . '/lib/semaphore.pm';
 
 # Include parts of the system
 require $SELF_DIR . '/lib/config.pm';
