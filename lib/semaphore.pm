@@ -1,4 +1,4 @@
-package Threads::Semaphore;
+package Thread::Semaphore;
 
 use threads::shared;
 
