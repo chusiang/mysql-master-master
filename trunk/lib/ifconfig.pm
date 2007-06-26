@@ -45,11 +45,30 @@ sub AddInterfaceIP($$) {
         `/sbin/ip addr add $ip/32 dev $if`;
     } elsif ($^O eq 'solaris') {
         `/usr/sbin/ifconfig $if addif $ip`;
+        my $logical_if = FindSolarisIF($ip);
+        unless ($logical_if) {
+            print "ERROR: Can't find logical interface with IP = $ip\n";
+            exit(1);
+        }
+        `/usr/sbin/ifconfig $logical_if up`;
     } else {
         print "ERROR: Unsupported platform!\n";
         exit(1);
     }
 }
+
+#---------------------------------------------------------------------------------
+sub FindSolarisIF {
+    my $ip = shift;
+    my $ifconfig = `/usr/sbin/ifconfig -a`;
+    $ifconfig =~ s/\n/ /g;
+
+    while ($ifconfig =~ s/([a-z0-9\:]+)(\:\s+.*?)inet\s*([0-9\.]+)//) {
+        return $1 if ($3 eq $ip);
+    }
+    return undef;
+}
+
 
 #-------------------------------------------------------
 sub SendArpNotification($$) {
