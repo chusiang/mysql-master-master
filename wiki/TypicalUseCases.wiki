@@ -1,6 +1,5 @@
-#summary One-sentence summary of this page.
+#summary Typical Use Cases of MMM Deployment.
 #labels Phase-Implementation,Featured
-
 = Introduction =
 
 Before you will deploy mmm on your servers I would encourage you to read this article - maybe you will find here your deployment scheme and/or example configuration files you could simply edit for your needs.
@@ -59,5 +58,4 @@ Notice: If you will need to point all your read-traffic only to slave servers, y
 With this configuration mmm will monitor all servers and if one of master server will go down, all slaves would be switched to new active master server. Reader IP will be balanced between slave servers and all of them will be available if at least one slave server is alive (or while at least master is alive if masters are in reader role servers list).
 
 Configuration files with detailed descriptions are available on the [ConfigurationExamples separate page].
-
 
