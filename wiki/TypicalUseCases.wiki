@@ -38,7 +38,7 @@ _Notice:_ If you will need to point all your read-traffic to passive master node
 
 With this configuration mmm will monitor both servers and if slave server will go down, all read-traffic would be moved to master server (your application would not notice any changes because both reader IPs will be moved to master server).
 
-Configuration files with detailed descriptions are available on the [ConfigurationExamples separate page].
+Configuration files with detailed descriptions are available on the [ConfigurationExamples separate page] and on the [http://blog.kovyrin.net/2007/04/23/master-master-replication-example-using-mmm/ author's site].
 
 == Two Masters + One (or many) Slaves ==
 
