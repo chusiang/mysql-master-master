@@ -20,11 +20,12 @@ Installation script is dedicated to verifying all software prerequisites, copyin
 
 Most of monitoring functionality of mmm now is based on Perl ithreads: servers checks, external commands processing and states switching logic are located in separate threads to prevent blocking of execution process because of network delays in checkers code. So, obviously, to use mmm you will need to use threads-enabled version of Perl interpreter.
 
-You can see which (or neither) threading flavour you have by running perl -V and looking at the Platform section. If you have useithreads=define you have ithreads, if not - you will need to reinstall perl and all modules before mmm deployment.
+You can see which (or neither) threading flavour you have by running `perl -V` and looking at the _Platform_ section. If you have `useithreads=define` you have ithreads, if not - you will need to reinstall perl and all modules before mmm deployment.
 
-IP availability checks could be performed by bundled Linux version of fping utility and ARP-pings could be performed by version of send_arp utility. If you want to use this software on Solaris 10, you will need to build and install your own fping and send_arp utilities using the sources provided in contrib directory. To build them you will need to have gcc and libnet installed on your server.
+IP availability checks could be performed by bundled Linux version of `fping` utility and ARP-pings could be performed by version of `send_arp` utility. If you want to use this software on Solaris 10, you will need to build and install your own `fping` and `send_arp` utilities using the sources provided in `contrib` directory. To build them you will need to have `gcc` and `libnet` installed on your server.
 
 Some other prerequisites are some Perl modules - I will not describe them all here - installer would help you to figure out which modules are missing and how to install them
 
 When installation will be done, you will need to perform configuration of installed software. Before you will begin, read description of [TypicalUseCases typical use-cases] with configuration files examples. And read documentation about allowed configuration options and their values.
+
 
