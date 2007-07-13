@@ -1,0 +1,118 @@
+#summary Config file examples with a short description.
+#labels Phase-Deploy
+
+= Introduction =
+
+Detailed description of this example configuration could be found in “[TypicalUseCases Typical use-cases of mmm-deployment]” document.
+
+
+= Master-master replication example =
+
+Let’s take a looks on example configuration files for such configuration. Every deployment of mmm requires N+1 installation where N is number of MySQL servers and 1 is monitoring server (can be combined with application server). Following examples would be named as `mmm_mon.conf` for minitoring server and `mmm_agent.conf` for database servers.
+
+mmm_mon.conf is following:
+
+{{{
+#
+# Master-Master Manager config (monitor)
+#
+
+# Debug mode
+debug no
+
+# Paths
+pid_path /opt/mmm/var/mmmd.pid
+status_path /opt/mmm/var/mmmd.status
+bin_path /opt/mmm/bin
+
+# Logging setup
+log mydebug
+    file /opt/mmm/var/mmm-debug.log
+    level debug
+
+log mytraps
+    file /opt/mmm/var/mmm-traps.log
+    level trap
+
+
+# MMMD command socket tcp-port
+bind_port 9988
+agent_port 9989
+monitor_ip 127.0.0.1
+
+# Cluster interface
+cluster_interface eth0
+
+# Cluster hosts addresses and access params
+host master1
+    ip 192.168.1.8
+    port 3306
+    user rep_monitor
+    password RepMonitor
+    mode master
+    peer master2
+
+host master2
+    ip 192.168.1.9
+    port 3306
+    user rep_monitor
+    password RepMonitor
+    mode master
+    peer master1
+
+#
+# Define roles
+#
+
+active_master_role writer
+
+# Mysql Reader role
+role reader
+    mode balanced
+    servers master1, master2
+    ip 192.168.1.100, 192.168.1.101
+
+# Mysql Writer role
+role writer
+    mode exclusive
+    servers master1, master2
+    ip 192.168.1.200, 192.168.1.201
+
+#
+# Checks parameters
+#
+
+# Ping checker
+check ping
+    check_period 1
+    trap_period 5
+    timeout 2
+
+# Mysql checker
+check mysql
+    check_period 1
+    trap_period  2
+    timeout 2
+
+# Mysql replication backlog checker
+check rep_backlog
+    check_period 5
+    trap_period 10
+    max_backlog 60
+    timeout 2
+
+# Mysql replication threads checker
+check rep_threads
+    check_period 1
+    trap_period 5
+    timeout 2
+}}}
+
+In this config file I want to highlight few sections:
+
+  * _Cluster hosts addresses and access params_ - this section describe IPs and credentials that will be used in all monitoring checks. So, it is required to have active MySQL instances listening on these IPs and appropriate access restrictions set to allow monitoring server to MySQL instance.
+  * _Define roles_ - this section defines what roles we have in our cluster and what IPs will be used for each role.
+
+All other config sections are pretty straightforward and described in details in [ConfigurationFiles configuration files section] of MMM guide.
+
+***** To be continued *****
