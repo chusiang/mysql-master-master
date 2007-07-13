@@ -1,5 +1,5 @@
 #summary Generic installation-related questions
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 
 = Introduction =
 
@@ -27,5 +27,4 @@ IP availability checks could be performed by bundled Linux version of `fping` ut
 Some other prerequisites are some Perl modules - I will not describe them all here - installer would help you to figure out which modules are missing and how to install them
 
 When installation will be done, you will need to perform configuration of installed software. Before you will begin, read description of [TypicalUseCases typical use-cases] with configuration files examples. And read documentation about allowed configuration options and their values.
-
 
