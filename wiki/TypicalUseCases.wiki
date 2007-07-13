@@ -1,0 +1,64 @@
+#summary One-sentence summary of this page.
+#labels Phase-Implementation
+
+= Introduction =
+
+Before you will deploy mmm on your servers I would encourage you to read this article - maybe you will find here your deployment scheme and/or example configuration files you could simply edit for your needs.
+
+
+= Details =
+
+First of all, let me describe in general what is mmm and what it could be used for.
+
+[http://code.google.com/p/mysql-master-master/ MMM (MySQL Master-Master Manager)] is flexible set of scripts dedicated to management of different schemes of MySQL servers deployment (including master-master replication schemes). With this software you will be able to create reliable configurations of MySQL servers that would handle your queries smoothly and without downtimes (or with minor downtimes related to monitoring lags).
+
+MMM, its documentation and configuration files operate with following terms:
+
+    * *Master* - MySQL servers which could handle schema or data modification queries from your application and could be replication masters for different MySQL slaves.
+    * *Slave* - MySQL server which could handle only data-retrieval queries from your application and receive data from one of masters via MySQL replication mechanisms.
+    * *Role* - abstract category of servers in cluster. All servers with one role could handle some specific subset of queries and if one or more servers with the same role are down, traffic from these servers would be switched to one or more live servers with the same role. For example, if we have 3 servers with read role and one server goes down, its traffic would be pointed to one of live slaves in this cluster.
+    * *Server state* - current state of specified server from mmm monitoring point of view. Server could be up and running but while mmm would not consider it online, this server would not be able to handle any queries from client applications
+
+So after this short introduction in to the mmm world I could describe few simple use-cases where this software can help you to get stable and robust schemes.
+
+== One Master + One Slave (backup master) ==
+
+This scheme is most used in middle-sized applications where one server could not handle all queries from application and people create second server which could handle all or part of data-retrieving queries. Simple diagram of this scheme is following:
+
+[http://blog.kovyrin.net/wp-content/uploads/2007/03/mmm-master-and-slave.jpeg http://blog.kovyrin.net/wp-content/uploads/2007/03/mmm-master-and-slave.thumbnail.jpeg]
+
+With mmm this scheme could be greatly improved in following manner: in normal mode one or both servers would serve reads and one server (active master) would serve writes, but if one server will go down, then other would handle both types of queries which is much better than to have two points of failure and lost your application when one server will go down. So, basic points of mmm configuration for described scheme:
+
+  # Two roles: _reader_ and _writer_
+  # _Writer role_ with one IP address in exclusive mode which all time will be bound to active master server.
+  # _Reader role_ with two IP addresses (one for each server) which will be bound to all currently live servers.
+  # Both roles are configured for both servers so cluster would work with only one live server
+
+_Notice:_ If you will need to point all your read-traffic to passive master node while it is online, you could simply set exclusive mode to reader role and dedicate only one IP for reader role (this IP will be bound to reader all time and moved to writer if reader will go down).
+
+With this configuration mmm will monitor both servers and if slave server will go down, all read-traffic would be moved to master server (your application would not notice any changes because both reader IPs will be moved to master server).
+
+Configuration files with detailed descriptions are available on the [ConfigurationExamples separate page].
+
+== Two Masters + One (or many) Slaves ==
+
+This is specific for master-master replication scheme. IT could not be implemented without using some third party software or [http://mysql.com/products/database/cluster/ MySQL Cluster] solutions (with well known set of limitations on database size). Simple diagram for such scheme is following:
+
+[http://blog.kovyrin.net/wp-content/uploads/2007/03/mmm-master-and-slave1.jpeg http://blog.kovyrin.net/wp-content/uploads/2007/03/mmm-master-and-slave1.thumbnail.jpeg]
+
+With mmm this scheme could be implemented in following manner: two paired master servers (like in previous example) and one or more slaves to handle data read requests. Key points of mmm configuration for such scheme:
+
+  # Two roles: _reader_ and _writer_
+  # _Writer role_ with one IP address which all time will be bound to active master server.
+  # _Reader role_ with N addresses (one for each server) which will be bound to all currently live servers.
+  # _Writer role_ is configured for master servers only in exclusive mode.
+  # _Reader role_ is configured for both master and slave servers so cluster would work with only one live master server.
+
+Notice: If you will need to point all your read-traffic only to slave servers, you could simply setup your reader role for slave servers only.
+
+With this configuration mmm will monitor all servers and if one of master server will go down, all slaves would be switched to new active master server. Reader IP will be balanced between slave servers and all of them will be available if at least one slave server is alive (or while at least master is alive if masters are in reader role servers list).
+
+Configuration files with detailed descriptions are available on the [ConfigurationExamples separate page].
+
+
+
