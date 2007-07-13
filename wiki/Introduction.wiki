@@ -1,0 +1,11 @@
+#summary What is MMM, Do I need MMM, etc...
+
+= Introduction =
+
+MMM (MySQL Master-Master Replication Manager) is set of flexible scripts to perform monitoring and management of MySQL Masrter-Master replication cluster configurations.
+
+
+= Details =
+
+***** To be continued *****
+
