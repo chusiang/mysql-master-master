@@ -4,10 +4,10 @@
 = Table of Contents =
 
   * [Introduction] - What is MMM, Do I need MMM, etc...
+  * [TypicalUseCases] - Where could I user MMM?
   * [Installation] - Generic installation-related questions
   * [ConfigurationFiles] - Configuration files-related information
   * [ConfigurationExamples] - Examples of simple and pretty complex configuration schemes
   * [Troubleshooting] - Problems solving
   * [InternalsOverview] - Generic MMM internals information
   * [FAQ] - Questions and Answers about MMM
-
