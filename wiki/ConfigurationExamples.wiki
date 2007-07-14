@@ -8,9 +8,9 @@ Detailed description of this example configuration could be found in “[Typical
 
 = Master-master replication example =
 
-Let’s take a looks on example configuration files for such configuration. Every deployment of mmm requires N+1 installation where N is number of MySQL servers and 1 is monitoring server (can be combined with application server). Following examples would be named as `mmm_mon.conf` for minitoring server and `mmm_agent.conf` for database servers.
+Let’s take a look at an example configuration file for such configuration. Every deployment of mmm requires N+1 installation where N is number of MySQL servers and 1 is monitoring server (can be combined with application server). Following examples would be named as `mmm_mon.conf` for monitoring server and `mmm_agent.conf` for database servers.
 
-mmm_mon.conf is following:
+*mmm_mon.conf*:
 
 {{{
 #
@@ -110,9 +110,61 @@ check rep_threads
 
 In this config file I want to highlight few sections:
 
-  * _Cluster hosts addresses and access params_ - this section describe IPs and credentials that will be used in all monitoring checks. So, it is required to have active MySQL instances listening on these IPs and appropriate access restrictions set to allow monitoring server to MySQL instance.
-  * _Define roles_ - this section defines what roles we have in our cluster and what IPs will be used for each role.
+  * _Cluster hosts addresses and access params_ - this section describe IPs and credentials that will be used in all monitoring checks. So, it is required to have an active MySQL instance listening on these IPs and appropriate access restrictions set to allow monitoring server to MySQL instance. 
+  * _Define roles_ - this section defines what roles we have in our cluster and what IPs will be used for each role. Since roles are moved among servers each server needs an IP (for the monitor to talk to it) and each role needs an IP.
 
-All other config sections are pretty straightforward and described in details in [ConfigurationFiles configuration files section] of MMM guide.
+*mmm_agent.conf*:
+{{{
+#
+# Master-Master Manager config (agent)
+#
 
-***** To be continued *****
+# Debug mode
+debug no
+
+# Paths
+pid_path /opt/mmm/var/mmmd_agent.pid
+bin_path /opt/mmm/bin
+
+# Logging setup
+log mydebug
+    file /opt/mmm/var/mmm-debug.log
+    level debug
+
+log mytraps
+    file /opt/mmm/var/mmm-traps.log
+    level trap
+
+# MMMD command socket tcp-port and ip
+bind_port 9989
+
+# Cluster interface
+cluster_interface eth0
+
+# Define current server id
+this master1
+mode master
+
+# For masters
+peer master2
+
+# Cluster hosts addresses and access params
+host master1
+    ip 192.168.1.8
+    port 3306
+    user rep_monitor
+    password RepMonitor
+
+host master2
+    ip 192.168.1.9
+    port 3306
+    user rep_monitor
+    password RepMonitor
+
+}}}
+
+All other config sections are pretty straightforward and described in detail in [ConfigurationFiles configuration files section] of MMM guide.
+
+
+
+
