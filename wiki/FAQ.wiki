@@ -1,0 +1,35 @@
+#summary - Frequently asked questions.
+
+= Introduction =
+
+Most questions will be answered in the discussion group.
+* http://groups.google.com/group/mmm-devel
+
+
+= F.A.Q =
+
+=== How many IP addresses do I need? ===
+
+You will need one for each MySQL server and one for each role. 
+ * 2(N)+1 where N is the number of servers.
+ *For a simple two server master master cluster you will need 5.
+   * server 1
+   * server 2
+   * writer role
+   * reader role 1
+   * reader role 2
+ * For a larger four machine cluster you would need 9.
+   * server 1
+   * server 2
+   * server 3
+   * server 4
+   * writer role
+   * reader role 1
+   * reader role 2
+   * reader role 3
+   * reader role 4
+
+
+
+
+
