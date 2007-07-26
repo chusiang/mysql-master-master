@@ -1,4 +1,5 @@
 #summary - Frequently asked questions.
+#labels Phase-QA
 
 = Introduction =
 
@@ -30,6 +31,22 @@ You will need one for each MySQL server and one for each role.
    * reader role 4
 
 
+=== How is MMM different from an LVS solution for managing MySQL clusters ===
+
+MMM does not any balancing between mysql servers it just keeps system
+alive by monitoring all servers in cluster and moving roles when some
+server dies. So I think we should say not "LVS vs MMM", but "LVS +
+MMM".
 
 
+=== How is MMM checking the MySQL servers ===
 
+MMM perform following checks for every server:
+  # IP connectivity (fping)
+  # MySQL connectivity (mysql connect and SELECT NOW())
+  # MySQL IO and SQL threads status (SHOW SLAVE STATUS)
+  # MySQL replication backlog - seconds behind master (SHOW SLAVE STATUS)
+
+In addition to these checks MMM manages read-only mode on the server
+to be sure that slaves could not process reads and only active master
+could.
