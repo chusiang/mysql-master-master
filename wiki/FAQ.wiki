@@ -31,7 +31,7 @@ You will need one for each MySQL server and one for each role.
    * reader role 4
 
 
-=== How is MMM different from an LVS solution for managing MySQL clusters ===
+=== How is MMM different from an LVS solution for managing MySQL clusters? ===
 
 MMM does not any balancing between mysql servers it just keeps system
 alive by monitoring all servers in cluster and moving roles when some
@@ -39,7 +39,7 @@ server dies. So I think we should say not "LVS vs MMM", but "LVS +
 MMM".
 
 
-=== How is MMM checking the MySQL servers ===
+=== How is MMM checking the MySQL servers? ===
 
 MMM perform following checks for every server:
   # IP connectivity (fping)
