@@ -48,5 +48,5 @@ MMM perform following checks for every server:
   # MySQL replication backlog - seconds behind master (SHOW SLAVE STATUS)
 
 In addition to these checks MMM manages read-only mode on the server
-to be sure that slaves could not process reads and only active master
+to be sure that slaves could not process writes and only active master
 could.
