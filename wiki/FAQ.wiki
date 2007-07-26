@@ -50,3 +50,21 @@ MMM perform following checks for every server:
 In addition to these checks MMM manages read-only mode on the server
 to be sure that slaves could not process writes and only active master
 could.
+
+
+=== How do I configure the IP addresses ? ===
+
+You just need to configure the IP address, for each computer, specified at your Cluster Hosts Addresses section on your Configuration File. As soon as MMM Agent start and communicate with MMM Monitor, it will setup the additional IPs for the roles. 
+
+Using [http://code.google.com/p/mysql-master-master/wiki/ConfigurationExamples Configuration Example] as reference, you will ONLY need to setup IPs 192.168.1.8 at master 1 and 192.168.1.9 at master2.
+
+Using [http://code.google.com/p/mysql-master-master/wiki/ConfigurationExamples Configuration Example] as reference you will write to IP 192.168.1.200 and read from 192.168.1.100, 192.168.1.101.
+
+If master1 fails MMM Monitor will move IP address 192.168.1.200 to master2 automatically.
+
+
+
+
+
+
+
