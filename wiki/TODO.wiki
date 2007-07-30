@@ -1,0 +1,15 @@
+#summary Our development plans and roadmap
+#labels Phase-Implementation
+
+= TODO =
+
+Definitely will be added:
+  * Log::Log4Perl for logging (external config for logging, flexible logging modules for file, syslog and even email logging)
+  * OO-based design with careful distribution of functionality between classes (easy to test).
+  * Test-driven development (what test framework to use?)
+  * Devel::DumpSizes + USR1 signal handler in daemons for memory debugging (or something else for memory leaks searching).
+  
+
+Maybe will be added:
+  * Agent-monitor protocol change: Maybe some xml one would be better?
+  * Configuration broadcasts and status restore from agents in case of clean (w/o status file) start.
