@@ -25,10 +25,4 @@ sub SyncWithMaster() {
     return ExecuteBin("sync_with_master");
 }
 
-#-----------------------------------------------------------------
-sub StartSlave($) {
-    my $master = shift;
-    return ExecuteBin("start_slave", $master);
-}
-
 1;
