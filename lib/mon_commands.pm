@@ -194,6 +194,10 @@ sub MoveRoleCommand($) {
         return "ERROR: Unknown role name ($host)! Valid roles are: " . join(', ', keys(%$roles));
     }
 
+    if ($roles->{$role}->{mode} ne 'exclusive') {
+        return "ERROR: move_role could be used for exclusive roles only!";
+    }
+
     unless ($servers_status->{$host}->{state} eq 'ONLINE') {
         return "ERROR: This server is '$servers_status->{$host}->{state}' now. It we can't move any roles there.";
     }
