@@ -63,8 +63,19 @@ Using [http://code.google.com/p/mysql-master-master/wiki/ConfigurationExamples C
 If master1 fails MMM Monitor will move IP address 192.168.1.200 to master2 automatically.
 
 
+=== What MySQL privileges needed for monitoring user (in mmm_mon.conf)? ===
+
+This user account would be used for server monitoring by following checks:
+  # mysql - uses SELECT NOW() which is always available
+  # rep_threads - uses SHOW MASTER STATUS, which requires REPLICATION CLIENT privilege
+  # rep_backlog - the same - REPLICATION CLIENT
+
+So, for monitoring account you'll need *REPLICATION CLIENT* privilege.
 
 
+=== What MySQL privileges needed for agent user (in mmm_agent.conf)? ===
+
+This account would be used to manage servers in cluster so it needs SUPER privileges.
 
 
 
