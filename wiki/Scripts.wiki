@@ -1,0 +1,21 @@
+#summary Scripts and Daemons
+
+= Scripts =
+
+== mmm_control - script to control monitor server ==
+
+== mmm_backup ==
+
+== mmm_clone ==
+
+== mmm_get_dump ==
+
+== mmm_restore ==
+
+= Daemons =
+
+== mmmd_mon - daemon to run on monitor server ==
+
+== mmmd_agent - daemon to run on database servers ==
+
+== mmmd_angel ==
