@@ -96,8 +96,8 @@ sub CheckPrerequisites() {
     }
     
     print "Checking iproute installation...";
-    unless (`which ip` =~ /ip/) {
-        print "Failed! Can't find 'ip' command on this system.\n\n";
+    if ($^O eq 'linux' && !(`which ip` =~ /ip/)) {
+        print "Failed! Can't find 'ip' command on this Linux system.\n\n";
 	exit(1);
     }
     print "Ok!\n";
