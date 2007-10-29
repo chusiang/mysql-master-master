@@ -40,13 +40,21 @@ MyExit("ERROR: Can't load checker module '$check_name'") if (!$res);
 # Read timeout from config file
 our $timeout = $config->{check}->{$check_name}->{timeout};
 
+# Read max_checks
+our $checks_to_restart = $config->{check}->{$check_name}->{restart_after};
+
 # Workaround to prevent checker from hanging in case of unnoticed broken pipe errors
 our $max_empty_commands = 100;
 our $empty_commands = 0;
 
 # Process loop
 while (!eof(STDIN)) {
-    CheckerLog("Loop start...");
+	# Check if it is time to die
+	if (defined($checks_to_restart) && --$checks_to_restart < 1) {
+		CheckerLog("Max checks performed, restarting...");
+		last;
+	}
+    CheckerLog("Waiting for a command...");
 
     # Get command
     chomp(my $cmd = <STDIN>);
@@ -65,7 +73,7 @@ while (!eof(STDIN)) {
     
     my @command = split(/\s+/, $cmd);
     if ($cmd eq 'ping') {
-        CheckerLog("Pong!");
+        CheckerLog("Ping received");
         print "OK: Pong!\n";
         next;
     }
@@ -81,9 +89,7 @@ while (!eof(STDIN)) {
     
     # Process command and output result
     if ($command[0] eq 'check') {
-        CheckerLog("Pre check...");
         print PerformCheck($timeout, $command[1]) . "\n";
-        CheckerLog("Post check...");
 	    next;
     }
 
