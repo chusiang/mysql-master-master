@@ -81,22 +81,28 @@ check ping
     trap_period 5
     timeout 2
 
-# Mysql checker
+# Mysql checker 
+# (restarts after 10000 checks to prevent memory leaks)
 check mysql
     check_period 1
     trap_period  2
     timeout 2
+    restart_after 10000
 
-# Mysql replication backlog checker
+# Mysql replication backlog checker 
+# (restarts after 10000 checks to prevent memory leaks)
 check rep_backlog
     check_period 5
     trap_period 10
     max_backlog 60
     timeout 2
+    restart_after 10000
 
-# Mysql replication threads checker
+# Mysql replication threads checker 
+# (restarts after 10000 checks to prevent memory leaks)
 check rep_threads
     check_period 1
     trap_period 5
     timeout 2
+    restart_after 10000
 
