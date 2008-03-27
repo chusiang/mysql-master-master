@@ -37,6 +37,7 @@ sub SpawnChecker($) {
     }
     
     my $checker = {
+        'pid' => $pid,
         'reader' => $reader,
         'writer' => $writer
     };
@@ -56,7 +57,8 @@ sub PingChecker($$) {
     my $send_res = print ($writer "ping\n");
     chomp(my $recv_res = <$reader>);
     
-    if (!$send_res || !($recv_res =~ /^OK/)) {
+    my $check_pid = waitpid($checker->{pid}, WNOHANG); # To prevent collecting children as zombies
+    if (!$send_res || !($recv_res =~ /^OK/) || $check_pid == -1) {
         LogWarn("Checker is dead!");
         $checker = SpawnChecker($name);
     }
@@ -208,13 +210,6 @@ sub ShutdownCheckerThreads($) {
     foreach my $thread (@$threads) {
         $thread->join();
     }
-}
-
-#-----------------------------------------------------------------
-sub LoadCheckModule($) {
-    my $module_name = shift;
-    
-    return $check;
 }
 
 1;
