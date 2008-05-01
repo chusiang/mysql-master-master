@@ -117,7 +117,7 @@ if ($clone_mode eq 'slave-slave') {
     $master_info->{'master_host'} = $status->{slave}->{'Master_Host'};
     $master_info->{'master_port'} = $status->{slave}->{'Master_Port'};
     $master_info->{'master_log'} = $status->{slave}->{'Master_Log_File'};
-    $master_info->{'master_pos'} = $status->{slave}->{'Read_Master_Log_Pos'};
+    $master_info->{'master_pos'} = $status->{slave}->{'Exec_Master_Log_Pos'};
 }
 
 if ($clone_mode eq 'master-slave' || $clone_mode eq 'master-master') {
