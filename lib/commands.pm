@@ -1,3 +1,6 @@
+
+require $SELF_DIR . '/lib/socket.pm';
+
 #-----------------------------------------------------------------
 sub SendMonitorCommand {
     my $cmd = shift;
@@ -10,14 +13,10 @@ sub SendMonitorCommand {
     }
     
     LogDebug("Sending command '$cmd(" . join(', ', @params) . ")' to $ip");
-    my $sock = IO::Socket::INET->new(
-        PeerAddr => $ip,
-        PeerPort => $config->{bind_port},
-        Proto => 'tcp'
-    );
+    my $sock = CreateSender($config, host => $ip);
     return 0 unless ($sock && $sock->connected);
     
-    $sock->send("$cmd:" . join(':', @params) . "\n");
+    print $sock join(':', $cmd, @params) . "\n";
     my $res = <$sock>;
     close($sock);
     
@@ -45,15 +44,14 @@ sub SendAgentCommand {
     }
     
     LogDebug("Sending command '$cmd(" . join(', ', @params) . ")' to $ip");
-    my $sock = IO::Socket::INET->new(
-        PeerAddr => $ip,
-        PeerPort => $config->{agent_port},
-        Proto => 'tcp',
-        Timeout => 10
+    my $sock = CreateSender($config,
+        host => $ip,
+        port => $config->{agent_port},
+        timeout => 10,
     );
     return 0 unless ($sock && $sock->connected);
     
-    $sock->send("$cmd:" . join(':', @params) . "\n");
+    print $sock join(':', $cmd, @params) . "\n";
     my $res = <$sock>;
     close($sock);
     
