@@ -1,21 +1,12 @@
 use Algorithm::Diff;
 
+require $SELF_DIR . '/lib/socket.pm';
+
 #-----------------------------------------------------------------
 sub CommandMain() {
-    # shortcut
-    my $this = $config->{this};
 
-    # Create listening socket for commands receiving
-    my $sock = new IO::Socket::INET (
-        LocalHost => $config->{host}->{$this}->{ip}, 
-        LocalPort => $config->{bind_port}, 
-        Proto => 'tcp', 
-        Listen => 10, 
-        Reuse => 1
-    ) || die "Can't bind socket ($config->{host}->{$this}->{ip}:$config->{bind_port})!\n";
-    $sock->timeout(3);
-    
-    die "Listener: Can't create command socket!\n" unless ($sock);
+    my $sock = CreateListener($config,
+        host => $config->{host}{$config->{this}}{ip});
     
     while (!$shutdown) {
         LogDebug("Listener: Waiting for connection...");
@@ -27,7 +18,7 @@ sub CommandMain() {
             chomp($cmd);
             my $res = HandleCommand($cmd);
             my $uptime = GetUptime();
-            $new_sock->send("$res|UP:$uptime\n");
+            print $new_sock "$res|UP:$uptime\n";
             LogDebug("Daemon: Answer = '$res'");
             return 0 if ($shutdown);
         }

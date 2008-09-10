@@ -1,0 +1,102 @@
+Using MMM with SSL
+
+The connections between mmmd_mon/mmmd_agent and mmm_control/mmmd_mon can
+be encrypted and authenticated via SSL.  This requires a set of SSL
+keys, the IO::Socket::SSL perl module and the following configuration
+settings.
+
+(The following examples assume that MMM is installed at /usr/local/mmm.)
+
+In mmm_agent.conf and mmm_mon.conf:
+
+  socket_type ssl
+      cert_file /usr/local/mmm/etc/ssl/ssl_crt.pem
+      key_file  /usr/local/mmm/etc/ssl/ssl_key.pem
+      ca_file   /usr/local/mmm/etc/ssl/ca_crt.pem
+
+If mmm_control is running *remotely*, the 'ca_file' (in the control
+node's mmm_mon.conf) is optional:
+
+  socket_type ssl
+      cert_file /usr/local/mmm/etc/ssl/ssl_crt.pem
+      key_file  /usr/local/mmm/etc/ssl/ssl_key.pem
+
+Note that mmmd_mon acts as a client to mmmd_agent and mmm_control acts
+as a client to mmmd_mon.
+
+In this configuration, the client is verified by the server, but the
+server is assumed to be trusted.  If spoofed servers are a concern, one
+can configure the clients to verify the server's SSL key as follows.
+
+  socket_type ssl
+      cert_file /usr/local/mmm/etc/ssl/ssl_crt.pem
+      key_file  /usr/local/mmm/etc/ssl/ssl_key.pem
+      ca_file   /usr/local/mmm/etc/ssl/ca_crt.pem
+      verify_mode 1
+
+
+########################################################################
+About the SSL Keys
+
+Authentication is by virtue of the CA signature on each node's
+ssl_crt.pem.  This means that the CA private key must be kept secret
+(not stored on any of the nodes) and that the ssl_key.pem private keys
+on each node should not be readable by unprivileged users.
+
+The CA key should only used to sign certificates for the MMM nodes.
+
+  1.  Generate a self-signed CA cert dedicated to use with MMM.
+  2.  Generate passwordless key/certificate pairs for each node.
+  3.  Sign the node certificates using the CA key.
+  4.  Copy the CA certificate and node key/cert to each node.
+
+If you are comfortable using the openssl tools, you can probably skip
+the next section.
+
+
+########################################################################
+Generating SSL Keys
+
+If you are not familiar with openssl, most openssl installations come
+with a "CA.pl" program which allows you to generate a CA and sign a few
+node certificates without reading the full openssl documentation (though
+you may have to find the right path for it on your system.)  The
+following bash snippet will prompt you for several inputs multiple
+times.  If you have more than two nodes, add to the list before the
+"do".
+
+  CA=/usr/lib/ssl/misc/CA.pl
+  mkdir mycerts; cd mycerts
+  
+  $CA -newca
+  chmod 600 demoCA/private/cakey.pem
+  
+  for x in node1 node2
+  do mkdir $x
+    openssl req -new -nodes -keyout $x/ssl_key.pem -out newreq.pem \
+      -days 365
+    perl -e 'print "y\n" for(1..2)' | $CA -sign
+    mv newcert.pem $x/ssl_crt.pem
+    cp demoCA/cacert.pem $x/ca_crt.pem
+    rm newreq.pem
+    chmod 600 $x/ssl_key.pem
+  done
+
+That should leave you with a tree like the following.  The demoCA
+directory should be kept secret.  The node1 and node2 directories
+are ready to install at $BASE_DIR/etc/ssl/ on each of the nodes.
+
+  |-- node1
+  |   |-- ca_crt.pem
+  |   |-- ssl_crt.pem
+  |   `-- ssl_key.pem
+  |-- node2
+  |   |-- ca_crt.pem
+  |   |-- ssl_crt.pem
+  |   `-- ssl_key.pem
+  `-- demoCA
+      ...
+      |-- private
+      |   `-- cakey.pem
+      ...
+

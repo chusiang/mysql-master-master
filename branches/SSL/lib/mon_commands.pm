@@ -1,19 +1,12 @@
+
+require $SELF_DIR . '/lib/socket.pm';
+
 #-----------------------------------------------------------------
 sub CommandMain($$) {
     my ($command_queue, $status_queue) = @_;
 
-    # Create listening socket for commands receiving
-    my $sock = new IO::Socket::INET (
-        LocalHost => $config->{monitor_ip}, 
-        LocalPort => $config->{bind_port}, 
-        Proto => 'tcp', 
-        Listen => 10, 
-        Reuse => 1
-    );
-    $sock->timeout(3);
-    
-    die "Listener: Can't create command socket!\n" unless ($sock);
-    
+    my $sock = CreateListener($config, host => $config->{monitor_ip});
+
     while (!$shutdown) {
         LogNotice("Listener: Waiting for connection...");
         my $new_sock = $sock->accept();
@@ -23,7 +16,7 @@ sub CommandMain($$) {
         while (my $cmd = <$new_sock>) {
             chomp($cmd);
             my $res = HandleCommand($cmd, $status_queue);
-            $new_sock->send("$res\n");
+            print $new_sock "$res\n";
             return 0 if ($shutdown);
         }
         
