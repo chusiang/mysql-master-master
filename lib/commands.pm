@@ -44,10 +44,12 @@ sub SendAgentCommand {
         exit(0);
     }
     
-    LogDebug("Sending command '$cmd(" . join(', ', @params) . ")' to $ip");
+    my $port = $config->{agent_port};
+    $port = $config->{host}->{$host}->{agent_port} if $config->{host}->{$host}->{agent_port};
+    LogDebug("Sending command '$cmd(" . join(', ', @params) . ")' to $ip:$port");
     my $sock = IO::Socket::INET->new(
         PeerAddr => $ip,
-        PeerPort => $config->{agent_port},
+        PeerPort => $port,
         Proto => 'tcp',
         Timeout => 10
     );
