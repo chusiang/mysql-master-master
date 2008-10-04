@@ -188,7 +188,10 @@ sub CreateSnapshot() {
         return "ERROR: Can't create snapshot: $!";
     }
 
-    my $res = system("mount -o rw /dev/" . $host->{lvm_volume_group} . "/mmm_snapshot " . $host->{lvm_mount_dir});
+    my $mount_opts = $host->{lvm_mount_opts};
+    $mount_opts = "-o rw" unless ($mount_opts);
+
+    my $res = system("mount " . $mount_opts . " /dev/" . $host->{lvm_volume_group} . "/mmm_snapshot " . $host->{lvm_mount_dir});
     if ($res) {
         return "ERROR: Can't mount snapshot: $!\n";
     }
