@@ -14,7 +14,7 @@ SYNOPSIS
 
 DESCRIPTION
   MMM (MySQL Master-Master Replication Manager) is set of flexible scripts
-  to perform monitoring and management of MySQL Masrter-Master replication 
+  to perform monitoring and management of MySQL Master-Master replication 
   cluster configurations.
 
   mmm_control is an interface script to mmmd_mon internals. It could perform 

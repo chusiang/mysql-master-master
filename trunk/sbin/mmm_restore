@@ -131,8 +131,8 @@ if ($res) {
 if ($version ne '') {
     my $res = RestoreDataFilesFromIncremental($version);
     unless ($res =~ /^OK/) {
-	LogError("Error: Can't restore data files from incremental backup: $res");
-	exit(1);
+        LogError("Error: Can't restore data files from incremental backup: $res");
+        exit(1);
     }
 } else {
     my $res = RestoreDataFiles();
@@ -168,8 +168,8 @@ LogNotice("Setting up replication if needed...");
 unless ($skip_mysqld) {
     my $res = SetupReplication();
     unless ($res =~ /^OK/) {
-	LogError("Replication setup error: $res");
-	exit(1);
+        LogError("Replication setup error: $res");
+        exit(1);
     }
 } else {
     LogNotice("Replication setup skipped!");
@@ -247,28 +247,28 @@ sub LoadStatusInfo($) {
 sub ListIncrementalVersions() {
     unless ($copy_method->{incremental} eq 'yes') {
         LogError("Invalid backup directory for incremental operations");
-		exit(0);
+        exit(0);
     }
     
     #FIXME: Need to add support for other incremental methods except rdiff
     if ($backup_method ne 'rdiff') {
         LogError('Only rdiff backup method supports version lists now. Sorry.');
-		exit(0);
+        exit(0);
     }
     
     # List versions
     my $res = open(RDIFF, "rdiff-backup --parsable-output -l '$backup_dir'|");
     unless ($res) {
         LogError("Can't start rdiff-backup to read versions info from backup!");
-		exit(1);
+        exit(1);
     }
     print "Following backup versions are available:\n";
     print " Version   | Date\n";
     print "-----------|---------------------\n";
     while(<RDIFF>) {
         chomp;
-		my ($ts, $type) = split /\s+/;
-		print("$ts | " . localtime($ts) . "\n");
+        my ($ts, $type) = split /\s+/;
+        print("$ts | " . localtime($ts) . "\n");
     }
     close(RDIFF);
 }
@@ -280,7 +280,7 @@ sub ShutdownLocalMysql() {
     # Check pid file
     if ($pid_file eq "") {
         LogWarn("Warining: Can't find pid-file option in config file.");
-	$pid_file = "/var/run/mysqld/mysqld.pid";
+        $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     
     my $cnt;
@@ -317,13 +317,13 @@ sub ShutdownLocalMysql() {
     while ($wait--) {
         $cnt = kill(0, $pid);
         last if ($cnt == 0);
-	LogDebug(".");
-	sleep(1);
+        LogDebug(".");
+        sleep(1);
     }
 
     if ($cnt != 0) {
         PrintError("MySql Shutdown Failed!");
-	return "ERROR: MySql is running with PID $pid after shutdown request!";
+        return "ERROR: MySql is running with PID $pid after shutdown request!";
     }
     
     LogDebug("Mysql Shutdown done: OK");
@@ -338,7 +338,7 @@ sub StartLocalMysql() {
     # Check pid file
     if ($pid_file eq "") {
         LogWarn("Warining: Can't find pid-file option in config file.");
-	$pid_file = "/var/run/mysqld/mysqld.pid";
+        $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     
     if (-f $pid_file) {
@@ -349,9 +349,9 @@ sub StartLocalMysql() {
     
         # Check process
         my $cnt = kill(0, $pid);
-	if ($cnt) {
-	    return "ERROR: Local mysql is running now with pid = $pid!";
-	}
+        if ($cnt) {
+            return "ERROR: Local mysql is running now with pid = $pid!";
+        }
     }
     
     LogNotice("MySql is not running now. Going to start it...");
@@ -374,7 +374,7 @@ sub CleanupDataDir() {
     
     my $master_log = $status->{master}->{File};
     unless ($master_log =~ /^(.*)\.(\d+)$/) {
-	return "ERROR: Unknown master binary log file name format ($master_log)!";
+        return "ERROR: Unknown master binary log file name format ($master_log)!";
     }
     
     LogDebug("Deleting master binary logs: $1.*");
@@ -382,7 +382,7 @@ sub CleanupDataDir() {
     
     my $slave_log = $status->{slave}->{Relay_Log_File};
     unless ($slave_log =~ /^(.*)\.(\d+)$/) {
-	return "ERROR: Unknown relay binary log file name format ($slave_log)!";
+        return "ERROR: Unknown relay binary log file name format ($slave_log)!";
     }
     
     LogDebug("Deleting relay binary logs: $1.*");
@@ -402,13 +402,13 @@ sub CleanupDataDir() {
 sub RestoreDataFiles() {
     if ($copy_method->{incremental} eq 'yes') {
         LogError("This is incremental backup dir! Use --version option to restore specific version");
-	exit(0);
+        exit(0);
     }
 
     my $restore_command = $copy_method->{restore_command};
     unless ($restore_command) {
         LogError("Copy method without restore command! Please, check your config file!");
-	exit(0);
+        exit(0);
     }
     
     LogDebug("Performing template substitutions on command...");
@@ -425,13 +425,13 @@ sub RestoreDataFiles() {
 sub RestoreDataFilesFromIncremental($version) {
     if (!$copy_method->{incremental} || $copy_method->{incremental} eq 'no') {
         LogError("Error: This is not incremental backup dir ($backup_dir backup method is $backup_method)!");
-	exit(0);
+        exit(0);
     }
 
     my $restore_command = $copy_method->{restore_command};
     unless ($restore_command) {
         LogError("Copy method without restore command! Please, check your config file!");
-	exit(0);
+        exit(0);
     }
     
     LogDebug("Performing template substitutions on command...");
@@ -452,8 +452,8 @@ sub SetupReplication() {
     my $dst_mode = $2;
     
     if ($dst_mode eq "single") {
-        LogNotice("Skipping replication setup because destination configiration is 'simple'");
-	return "OK: Skipped";
+        LogNotice("Skipping replication setup because destination configuration is 'single'");
+        return "OK: Skipped";
     }
     
     # Get remote host info
@@ -488,13 +488,13 @@ sub SetupReplication() {
     # Restore master from slave - not implemented
     if ($src_mode eq 'slave' && $dst_mode eq 'master') {
         LogWarn("FIXME: Don't know how to restore master from slave");
-	return "OK: Not implemented!";
+        return "OK: Not implemented!";
     }
 
     # Restore master from master - not implemented
     if ($src_mode eq 'master' && $dst_mode eq 'master') {
         LogWarn("FIXME: Don't know how to restore master from master");
-	return "OK: Not implemented!";
+        return "OK: Not implemented!";
     }
 
     LogDebug("My Master info: " . Dumper($my_master_info));

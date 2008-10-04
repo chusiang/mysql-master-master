@@ -7,7 +7,7 @@ SYNOPSIS
 
 DESCRIPTION
   MMM (MySQL Master-Master Replication Manager) is set of flexible scripts
-  to perform monitoring and management of MySQL Masrter-Master replication 
+  to perform monitoring and management of MySQL Master-Master replication 
   cluster configurations.
 
   mmmd_mon is a central part of entire MMM-cluster. It runs on dedicated 
@@ -36,7 +36,7 @@ OPTIONS
 CONFIGURATION
   This script uses $BASEDIR/etc/mmm_mon.conf file for its configuration. 
   If cluster name option provided, then $BASE_DIR/etc/mmm_mon_cluster_name.conf 
-  file used.
+  file is used.
 
 SEE ALSO
   More information could be found in mmmd_agent(1), mmm_mon.conf(5).
