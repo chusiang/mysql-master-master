@@ -47,6 +47,8 @@ our $checks_to_restart = $config->{check}->{$check_name}->{restart_after};
 our $max_empty_commands = 100;
 our $empty_commands = 0;
 
+our $log_debug = ($config->{debug} =~ /^(on|yes|1)$/i);
+
 # Process loop
 while (!eof(STDIN)) {
 	# Check if it is time to die
@@ -54,11 +56,11 @@ while (!eof(STDIN)) {
 		CheckerLog("Max checks performed, restarting...");
 		last;
 	}
-    CheckerLog("Waiting for a command...");
+    CheckerLogDebug("Waiting for a command...");
 
     # Get command
     chomp(my $cmd = <STDIN>);
-    CheckerLog("Got cmd = '$cmd'");
+    CheckerLogDebug("Got cmd = '$cmd'");
 
 	# Die if there are too many empty commands in a row
     if ($cmd eq '') {
@@ -73,7 +75,7 @@ while (!eof(STDIN)) {
     
     my @command = split(/\s+/, $cmd);
     if ($cmd eq 'ping') {
-        CheckerLog("Ping received");
+        CheckerLogDebug("Ping received");
         print "OK: Pong!\n";
         next;
     }
@@ -107,6 +109,12 @@ sub MyExit($) {
     print "$res\n";
 	CheckerLog("EXIT: $res");
     exit(0);
+}
+
+#-------------------------------------------------
+sub CheckerLogDebug($) {
+    my $msg = shift;
+    if ($log_debug) { CheckerLog($msg); }
 }
 
 #-------------------------------------------------
