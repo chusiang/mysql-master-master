@@ -49,6 +49,7 @@ host dbr1
     lvm_data_volume datalv
     lvm_volume_group lvg1
     lvm_mount_dir /mmm_snapshot
+    lvm_mount_opts -orw
     mysql_host 192.168.1.1
     mysql_port 3306
     mysql_user rep_monitor
@@ -65,6 +66,7 @@ host dbr2
     lvm_data_volume datalv
     lvm_volume_group lvg1
     lvm_mount_dir /mmm_snapshot
+    lvm_mount_opts -orw
     mysql_host 192.168.1.2
     mysql_port 3306
     mysql_user rep_monitor
