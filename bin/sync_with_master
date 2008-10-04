@@ -19,12 +19,12 @@ require $SELF_DIR . '/lib/config.pm';
 # Read config file and status
 our $config = ReadConfig("mmm_agent.conf");
 
-print MySqlAllowWrite();
+print SyncWithMaster();
 
 exit(0);
 
 #-----------------------------------------------------------------
-sub MySqlAllowWrite($) {
+sub SyncWithMaster($) {
     my $host = shift;
 
     my $this = $config->{this};
