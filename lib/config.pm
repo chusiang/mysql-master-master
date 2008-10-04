@@ -1,3 +1,6 @@
+use threads;
+use threads::shared;
+
 my $is_threaded = defined(&share);
 
 #-----------------------------------------------------------------
@@ -21,6 +24,8 @@ sub ReadConfig($) {
     
     while (<CONF>) {
         chomp;
+        # strip whitespace from end of line
+        s/\s*$//g;
         $line++;
         
         # comments and empty lines handling
@@ -54,7 +59,7 @@ sub ReadConfig($) {
     
     close(CONF);
     
-    return ($is_threaded)? &share($config) : $config;
+    return $config;
 }
 
 #-----------------------------------------------------------------

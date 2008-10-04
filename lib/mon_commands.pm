@@ -202,6 +202,10 @@ sub MoveRoleCommand($) {
         return "ERROR: This server is '$servers_status->{$host}->{state}' now. It we can't move any roles there.";
     }
     
+    my $role_servers = $roles->{$role}->{servers};
+    unless (grep($_ == $host, @$role_servers)) {
+        return "ERROR: Host '$host' is can't handle role '$role'. Only following hosts could: " . join(', ', @$role_servers);
+    }
     
     my $res = SendAgentCommand($host, 'PING');
     if (!$res) {
