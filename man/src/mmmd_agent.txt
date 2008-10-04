@@ -6,7 +6,7 @@ SYNOPSIS
 
 DESCRIPTION
   MMM (MySQL Master-Master Replication Manager) is set of flexible scripts
-  to perform monitoring and management of MySQL Masrter-Master replication 
+  to perform monitoring and management of MySQL Master-Master replication 
   cluster configurations.
 
   mmmd_agent is a simple daemon which runs on all MySQL servers in MMM-cluster. 

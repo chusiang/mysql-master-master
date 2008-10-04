@@ -143,7 +143,7 @@ sub SetOfflineCommand($) {
     }
 
     unless ($servers_status->{$host}->{state} eq 'ONLINE' || $servers_status->{$host}->{state} =~ /^REPLICATION_/) {
-        return "ERROR: This server is '$servers_status->{$host}->{state}' now. It can't be switched to admin_offline.";
+        return "ERROR: This server is '$servers_status->{$host}->{state}' at the moment. It can't be switched to admin_offline.";
     }
     
     my $res = SendAgentCommand($host, 'PING');
@@ -195,16 +195,16 @@ sub MoveRoleCommand($) {
     }
 
     if ($roles->{$role}->{mode} ne 'exclusive') {
-        return "ERROR: move_role could be used for exclusive roles only!";
+        return "ERROR: move_role may be used for exclusive roles only!";
     }
 
     unless ($servers_status->{$host}->{state} eq 'ONLINE') {
-        return "ERROR: This server is '$servers_status->{$host}->{state}' now. It we can't move any roles there.";
+        return "ERROR: This server is '$servers_status->{$host}->{state}' at the moment. We can't move any roles there.";
     }
     
     my $role_servers = $roles->{$role}->{servers};
     unless (grep($_ == $host, @$role_servers)) {
-        return "ERROR: Host '$host' is can't handle role '$role'. Only following hosts could: " . join(', ', @$role_servers);
+        return "ERROR: Host '$host' can't handle role '$role'. Only following hosts could: " . join(', ', @$role_servers);
     }
     
     my $res = SendAgentCommand($host, 'PING');
@@ -214,10 +214,10 @@ sub MoveRoleCommand($) {
     
     my $old_owner = GetExclusiveRoleOwner($role);
     if ($host eq $old_owner) {
-        return "OK: Role is on '$host' now. So skipping command.";
+        return "OK: Role is on '$host' already. So skipping command.";
     }
     
-    LogTrap("Daemon: Admin Move role $role to host $host");
+    LogTrap("Daemon: Admin Move role($role): $old_owner -> $host");
     
     # Lock section
     $status_sem->down;
