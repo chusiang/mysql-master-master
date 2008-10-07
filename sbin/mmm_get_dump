@@ -119,7 +119,7 @@ exit(0);
 
 #-----------------------------------------------------------------
 sub PrintUsage() {
-    print "Usage: $0 --host <host> [--copy-method method] [--dest-dir dir]\n";
+    print "Usage: $0 [--config <config file>] --host <host> [--copy-method <method>] [--dest-dir <dir>]\n";
     print "Where:\n";
     print "  Host = " . join('|', keys(%{$config->{host}})) . "\n";
     print "  Copy method = " . join('|', keys(%{$config->{copy_method}})) . " (default = $config->{default_copy_method})\n\n";

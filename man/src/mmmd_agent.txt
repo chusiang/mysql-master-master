@@ -5,7 +5,7 @@ SYNOPSIS
   mmmd_agent
 
 DESCRIPTION
-  MMM (MySQL Master-Master Replication Manager) is set of flexible scripts
+  MMM (MySQL Master-Master Replication Manager) is a set of flexible scripts
   to perform monitoring and management of MySQL Master-Master replication 
   cluster configurations.
 

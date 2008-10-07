@@ -1,0 +1,67 @@
+NAME
+  mmm_clone - MySQL Master-Master clone utility
+
+SYNOPSIS
+  mmm_clone [--config <config file>] --host <host> --clone-mode <mode> [--copy-method <method>]
+
+DESCRIPTION
+  MMM (MySQL Master-Master Replication Manager) is a set of flexible scripts
+  to perform monitoring and management of MySQL Master-Master replication 
+  cluster configurations.
+
+  mmm_clone is a utility to get a clone of a remote mysql database
+  up and running locally. It utilizes mmm_get_dump(1).
+
+OPTIONS
+
+  --config <config file>
+                - Read configuration from this file. Default is $BASEDIR/etc/mmm_lvm.conf.
+
+  --host <host>
+                - Remote host from which should be cloned. Must be one of the
+                  hosts specified in mmm_lvm.conf(5).
+
+  --clone-mode <mode>
+                - Clone mode
+
+                  * slave-slave
+                           - Create a local slave from a remote slave. Will set
+                             up replication using the master of the source host
+                             as new master.
+                  * master-slave
+                           - Create a local slave from a remote master. Will
+                             set up replication using the source host as new
+                             master.
+                  * master-master
+                           - Create a local master from a remote master. Will
+                             set up local replication using the source host as
+                             new master and remote replication using the local
+                             host as new master.
+
+  --copy-method <method>
+                - With the default configuration mmm_lvm.conf(5) shipped with
+                  MMM this script supports the following methods to copy the
+                  dump from the remote host. Please note, that only copy
+                  methods that create a 1:1 copy should be used!
+
+                  * scp    - uses scp(1) with blowfish encryption. This is the
+                             default copy method.
+                  * rdiff  - needs rdiff-backup(1) installed on both local and
+                             remote host. Supports incremental backups.
+                             Note: Will work with mmm_clone, but doesn't make
+                             much sense.
+                  * ssh-gz - uses ssh(1) with blowfish encryption and tar(1) to
+                             copy the data from the remote host and gzip(1) to
+                             compress it on the local host.
+                             Note: Won't work with mmm_clone.
+
+CONFIGURATION
+  This script uses $BASEDIR/etc/mmm_lvm.conf file for its configuration. 
+
+SEE ALSO
+  More information could be found in mmm_get_dump(1), mmm_lvm.conf(5).
+
+AUTHOR
+  Developed by Alexey Kovyrin <http://blog.kovyrin.net>. Consulting and ideas
+  provided by Peter Zaitsev from Percona Ltd company <http://mysqlperformanceblog.com>.
+

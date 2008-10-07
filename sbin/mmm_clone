@@ -104,7 +104,7 @@ LogNotice("-----------------------------------------------------------------");
 # Cleaning dump from master.info and binary logs
 my $res = CleanupDump();
 unless ($res =~ /^OK/) {
-    LogError("Error: Can't cleanup dump from binaty logs: $res");
+    LogError("Error: Can't cleanup dump from binary logs: $res");
     exit(1);
 }
 
@@ -162,7 +162,7 @@ exit(0);
 
 #-----------------------------------------------------------------
 sub PrintUsage() {
-    print "Usage: $0 [--config <config file>] --host <host> --clone-mode <clone-mode> [--copy-method <copy_method>]\n";
+    print "Usage: $0 [--config <config file>] --host <host> --clone-mode <mode> [--copy-method <method>]\n";
     print "Where:\n";
     print "  Host = " . join('|', keys(%{$config->{host}})) . "\n";
     print "  Clone mode: slave-slave|master-slave|master-master\n";
@@ -176,7 +176,7 @@ sub ShutdownLocalMysql() {
     
     # Check pid file
     if ($pid_file eq "") {
-        LogWarn("Warining: Can't find pid-file option in config file.");
+        LogWarn("Warning: Can't find pid-file option in config file.");
 	    $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     
