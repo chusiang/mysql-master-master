@@ -42,7 +42,7 @@ sub CreateLvmSnapshot() {
 
     # Check mount dir
     if (scalar(glob("$dump_dir/*"))) {
-        return "ERROR: VLM mount dir is not empty!";
+        return "ERROR: LVM mount dir is not empty!";
     }
     
     # Connect to Database

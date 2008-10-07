@@ -43,14 +43,14 @@ exit(0);
 sub DaemonMain() {
     while (!$shutdown) {
         foreach my $service (keys(%{$config->{service}})) {
-	    my $s = $config->{service}->{$service};
-	    next if ($s->{disabled});
-	    
-	    CheckService($s);
-	}
+            my $s = $config->{service}->{$service};
+            next if ($s->{disabled});
+            
+            CheckService($s);
+        }
 
-	# sleep before next check
-	sleep($config->{check_period});
+        # sleep before next check
+        sleep($config->{check_period});
     }
 }
 
@@ -65,20 +65,27 @@ sub CheckService($) {
     
     if (CheckPid($pid)) {
         LogDebug("Service '$service->{description}' is OK");
-	    return 1;
+        return 1;
     }
     
     LogTrap("Warning: Service '$service->{description}' is dead! Restarting it...");
     my $res = system("nohup $cmd &> /dev/null &");
     if ($res) {
         LogError("Error: Can't execute command: '$cmd'");
-	    SendEmailNotice("'$service->{description}' is dead! Restart try failed!");
-	    return 1;
+        SendEmailNotice("'$service->{description}' is dead! Restart try failed!");
+        return 1;
     }
     
-    LogTrap("Notice: Service '$service->{description}' has been restarted successfully");
-    SendEmailNotice("'$service->{description}' is dead! Restarted successfully!");
     sleep(5);
+
+    if (CheckPid($pid)) {
+        LogTrap("Notice: Service '$service->{description}' has been restarted successfully");
+        SendEmailNotice("'$service->{description}' was dead! Restarted successfully!");
+        return 1;
+    }
+
+    LogTrap("Error: Service '$service->{description}' could not be restarted");
+    SendEmailNotice("'$service->{description}' is dead! Restart failed!");
 }
 
 #-----------------------------------------------------------------
@@ -110,7 +117,7 @@ sub SendEmailNotice($) {
     my $res = open(SENDMAIL, "|$sendmail");
     unless ($res) { 
         LogError("Error: Cannot open $sendmail: $!");
-	    return 1;
+        return 1;
     }
     print SENDMAIL "From: mmm_mon\@kovyrin.net\n";
     print SENDMAIL "Subject: [$now] MMM Service failure\n";
