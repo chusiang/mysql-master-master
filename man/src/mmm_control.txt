@@ -30,7 +30,7 @@ DESCRIPTION
 OPTIONS AND COMMANDS
   @cluster_name  This option should be always specified first. If it is used, 
     then mmm_control would try to read mmmd_mon(1) configuration from 
-    $BASE_DIR/etc/mmm_mon_cluster_name.conf file.
+    $BASEDIR/etc/mmm_mon_cluster_name.conf file.
 
   ping  Connects to local monitoring daemon and checks its status.
 
@@ -51,7 +51,7 @@ OPTIONS AND COMMANDS
 
 CONFIGURATION
   This script uses $BASEDIR/etc/mmm_mon.conf file for its configuration. 
-  If cluster name option provided, then $BASE_DIR/etc/mmm_mon_cluster_name.conf 
+  If cluster name option provided, then $BASEDIR/etc/mmm_mon_cluster_name.conf 
   file used.
 
 SEE ALSO

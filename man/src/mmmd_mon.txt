@@ -31,11 +31,11 @@ DESCRIPTION
 OPTIONS
   @cluster_name - This is the only option at this time. If it is used, 
                   then mmmd_mon would try to read configuration from 
-                  $BASE_DIR/etc/mmm_mon_cluster_name.conf file.
+                  $BASEDIR/etc/mmm_mon_cluster_name.conf file.
 
 CONFIGURATION
   This script uses $BASEDIR/etc/mmm_mon.conf file for its configuration. 
-  If cluster name option provided, then $BASE_DIR/etc/mmm_mon_cluster_name.conf 
+  If cluster name option provided, then $BASEDIR/etc/mmm_mon_cluster_name.conf 
   file is used.
 
 SEE ALSO

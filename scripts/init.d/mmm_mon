@@ -6,7 +6,7 @@
 # chkconfig: - 64 36
 # description:  MMM Monitor.
 # processname: mmmd_mon
-# config: /usr/local/mmm/etc/mmm_mont.conf
+# config: /usr/local/mmm/etc/mmm_mon.conf
 # pidfile: /usr/local/mmm/var/mmmd_mon.pid
 
 # Cluster name (it can be empty for default cases)
