@@ -39,7 +39,7 @@ OPTIONS
                              as new master.
 
   --data-dir <dir>
-                - datadir of local mysql installation.  Will be created if it 
+                - datadir of local mysql installation. Will be created if it 
                   does not exist.
 
   --version <version | list>
