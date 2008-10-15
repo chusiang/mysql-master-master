@@ -118,8 +118,7 @@ db2(192.168.0.13): master/ONLINE. Roles: reader(192.168.0.11;), writer(192.168.0
 These are the most common node states:
 
   * master/ONLINE - this indicates that the node is running without any problems.
-  * master/AWAITING_RECOVERY - it's common to see this state when MySQL is restarted and the node is not set on-line in cluster yet. If the node can't be set on-line, command "mmm_control @C1 set_online node" prints the explanation on what is the problem. If the problem is with replication, this is where you should check the problem manually in
-MySQL itself.
+  * master/AWAITING_RECOVERY - it's common to see this state when MySQL is restarted and the node is not set on-line in cluster yet. If the node can't be set on-line, command "mmm_control @C1 set_online node" prints the explanation on what is the problem. If the problem is with replication, this is where you should check the problem manually in MySQL itself.
   * master/ADMIN_OFFLINE - indicates that node was set offline manually, but MySQL server is actually running.
   * master/HARD_OFFLINE - shows that MySQL server is unreachable. This could be a network failure or MySQL might actually be down.
   * master/REPLICATION_FAIL - indicates an obvious replication error. You should check the problem and fix it manually.
