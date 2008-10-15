@@ -83,13 +83,14 @@ sub SetOnlineCommand($) {
     # Get params
     my $params = $cmd->{params};
     my ($host) = @$params;
-    my $peer_name = $config->{host}->{$host}->{peer};
-    my $peer = $servers_status->{$peer_name};
-    my $peer_checks = $checks_status->{$peer_name};
-    
+
     if (!defined($servers_status->{$host})) {
         return "ERROR: Unknown host name!";
     }
+    
+    my $peer_name = $config->{host}->{$host}->{peer};
+    my $peer = $servers_status->{$peer_name};
+    my $peer_checks = $checks_status->{$peer_name};
     
     if ($servers_status->{$host}->{state} eq 'ONLINE') {
         return "OK: This server is online. So skipping command.";
