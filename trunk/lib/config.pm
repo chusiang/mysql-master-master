@@ -274,6 +274,10 @@ sub AssignRole($$) {
     my $ip = $2;
     my $parent_host = $3;
     
+    unless (defined($roles->{$role_name}->{ips}->{$ip})) {
+        print "Detected role change: ip '$ip' was removed from role '$role_name'\n";
+        return;
+    }
     print "Adding role: '$role_name' with ip '$ip'\n";
     
     $roles->{$role_name}->{ips}->{$ip}->{assigned_to} = $host;
