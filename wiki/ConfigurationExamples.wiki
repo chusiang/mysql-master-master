@@ -76,7 +76,7 @@ role reader
 role writer
     mode exclusive
     servers master1, master2
-    ip 192.168.1.200, 192.168.1.201
+    ip 192.168.1.200
 
 #
 # Checks parameters
@@ -164,7 +164,5 @@ host master2
 }}}
 
 All other config sections are pretty straightforward and described in detail in [ConfigurationFiles configuration files section] of MMM guide.
-
-
 
 
