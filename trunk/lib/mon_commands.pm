@@ -203,8 +203,8 @@ sub MoveRoleCommand($) {
         return "ERROR: This server is '$servers_status->{$host}->{state}' at the moment. We can't move any roles there.";
     }
     
-    my $role_servers = $roles->{$role}->{servers};
-    unless (grep($_ == $host, @$role_servers)) {
+    my $role_servers = $roles->{$role}->{hosts};
+    unless (grep({$_ eq $host} @$role_servers)) {
         return "ERROR: Host '$host' can't handle role '$role'. Only following hosts could: " . join(', ', @$role_servers);
     }
     
