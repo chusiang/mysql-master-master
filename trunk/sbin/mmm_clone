@@ -47,6 +47,11 @@ unless ($clone_host) {
     PrintUsage();
 }
 
+if ($host_name eq $config->{this}) {
+    print "Error: Invalid host name: We can't clone ourselves!\n\n";
+    PrintUsage();
+}
+
 # Check clone mode
 if ($clone_mode ne 'slave-slave' && $clone_mode ne 'master-slave' && $clone_mode ne 'master-master') {
     print "Error: Unknown clone mode: $clone_mode\n\n";
@@ -168,7 +173,7 @@ exit(0);
 sub PrintUsage() {
     print "Usage: $0 [--config <config file>] --host <host> --clone-mode <mode> [--copy-method <method>] [--dest-dir <dir>]\n";
     print "Where:\n";
-    print "  Host = " . join('|', keys(%{$config->{host}})) . "\n";
+    print "  Host = " . join('|', grep {$_ ne $config->{this}} keys(%{$config->{host}})) . "\n";
     print "  Clone mode: slave-slave|master-slave|master-master\n";
     print "  Copy method = " . join('|', keys(%{$config->{copy_method}})) . " (default = $config->{default_copy_method})\n\n";
     exit(1);
