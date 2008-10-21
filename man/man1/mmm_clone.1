@@ -6,7 +6,7 @@
 .SH SYNOPSIS
 .nf
 .fam C
-\fBmmm_clone\fP [\fB\-\-config\fP <config file>] \fB\-\-host\fP <host> \fB\-\-clone\-mode\fP <mode> [\fB\-\-copy\-method\fP <method>]
+\fBmmm_clone\fP [\fB\-\-config\fP <config file>] \fB\-\-host\fP <host> \fB\-\-clone\-mode\fP <mode> [\fB\-\-copy\-method\fP <method>] [\fB\-\-dest\-dir\fP <dir>]
 .fam T
 .fi
 .SH DESCRIPTION
@@ -68,6 +68,11 @@ ssh\-gz
 copy the data from the remote host and \fBgzip\fP(1) to
 compress it on the local host.
 Note: Won't work with \fBmmm_clone\fP.
+.RE
+.PP
+\fB\-\-dest\-dir\fP <dir>
+\- Destination directory. Will be created if it does not exist.
+Defaults to the dest_dir specified in \fBmmm_lvm.conf\fP(5).
 .SH CONFIGURATION
 This script uses $BASEDIR/etc/mmm_lvm.conf file for its configuration. 
 .SH SEE ALSO
