@@ -24,11 +24,13 @@ my $config_file = "mmm_lvm.conf";
 my $host_name;
 my $clone_mode;
 my $copy_method;
+my $dest_dir;
 
 GetOptions("config=s" => \$config_file,
            "host=s" => \$host_name,
-	       "clone-mode=s" => \$clone_mode,
-	       "copy-method=s" => \$copy_method);
+           "clone-mode=s" => \$clone_mode,
+           "copy-method=s" => \$copy_method,
+           "dest-dir=s" => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file
@@ -36,6 +38,7 @@ our $config = ReadConfig($config_file);
 my $copy_method = $config->{default_copy_method} unless ($copy_method);
 my @clone_dirs : shared = split(/\,/, $config->{clone_dirs});
 $config->{clone_dirs} = \@clone_dirs;
+$config->{dest_dir} = $dest_dir if ($dest_dir ne '');
 
 # Check host name
 my $clone_host = $config->{host}->{$host_name};
@@ -60,6 +63,7 @@ unless ($method) {
 LogNotice("Host: '$host_name'");
 LogNotice("Clone mode: '$clone_mode'");
 LogNotice("Copy method: '$copy_method'");
+LogNotice("Destination: '$config->{dest_dir}'");
 LogNotice("Dirs to clone: '" . join(', ', @clone_dirs) . "'");
 
 #-----------------------------------------------------------------
@@ -83,7 +87,7 @@ unless ($res =~ /^OK/) {
 
 LogNotice("-----------------------------------------------------------------");
 # Executing copying process
-my $res = system("$SELF_DIR/sbin/mmm_get_dump --host $host_name --copy-method $copy_method");
+my $res = system("$SELF_DIR/sbin/mmm_get_dump --host $host_name --copy-method $copy_method --dest-dir $config->{dest_dir}");
 if ($res) {
     LogError("Error: Can't copy data from remote server");
     exit(1);
@@ -162,7 +166,7 @@ exit(0);
 
 #-----------------------------------------------------------------
 sub PrintUsage() {
-    print "Usage: $0 [--config <config file>] --host <host> --clone-mode <mode> [--copy-method <method>]\n";
+    print "Usage: $0 [--config <config file>] --host <host> --clone-mode <mode> [--copy-method <method>] [--dest-dir <dir>]\n";
     print "Where:\n";
     print "  Host = " . join('|', keys(%{$config->{host}})) . "\n";
     print "  Clone mode: slave-slave|master-slave|master-master\n";

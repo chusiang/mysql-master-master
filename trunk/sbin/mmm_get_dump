@@ -26,17 +26,15 @@ my $dest_dir;
 
 GetOptions("config=s" => \$config_file,
            "host=s" => \$host_name,
-	       "copy-method=s" => \$copy_method,
-	       "dest-dir=s" => \$dest_dir);
+           "copy-method=s" => \$copy_method,
+           "dest-dir=s" => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file
 our $config = ReadConfig($config_file);
 
 # Directories info parsing
-my @clone_dirs;
-&share(\@clone_dirs);
-@clone_dirs = split(/\,/, $config->{clone_dirs});
+my @clone_dirs : shared = split(/\,/, $config->{clone_dirs});
 $config->{clone_dirs} = \@clone_dirs;
 $config->{dest_dir} = $dest_dir if ($dest_dir ne '');
 
@@ -53,6 +51,7 @@ PrintUsage() unless ($method);
 
 LogNotice("Host: '$host_name'");
 LogNotice("Copy method: '$copy_method'");
+LogNotice("Destination: '$config->{dest_dir}'");
 
 LogNotice("-----------------------------------------------------------------");
 # Check destination directory
