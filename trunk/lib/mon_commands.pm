@@ -15,7 +15,7 @@ sub CommandMain($$) {
     die "Listener: Can't create command socket!\n" unless ($sock);
     
     while (!$shutdown) {
-        LogNotice("Listener: Waiting for connection...");
+        LogDebug("Listener: Waiting for connection...");
         my $new_sock = $sock->accept();
         next unless ($new_sock);
         
@@ -28,7 +28,7 @@ sub CommandMain($$) {
         }
         
         close($new_sock);
-        LogNotice("Listener: Disconnect!");
+        LogDebug("Listener: Disconnect!");
     }
     
     return 0;

@@ -279,7 +279,7 @@ sub ShutdownLocalMysql() {
     
     # Check pid file
     if ($pid_file eq "") {
-        LogWarn("Warining: Can't find pid-file option in config file.");
+        LogWarn("Warning: Can't find pid-file option in config file.");
         $pid_file = "/var/run/mysqld/mysqld.pid";
     }
     

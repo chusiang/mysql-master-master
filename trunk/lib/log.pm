@@ -3,8 +3,8 @@ use Fcntl ':flock'; # import LOCK_* constants
 my $log_levels = {};
 $log_levels->{'trap'} = 0;
 $log_levels->{'error'} = 10;
-$log_levels->{'notice'} = 20;
-$log_levels->{'warn'} = 30;
+$log_levels->{'warn'} = 20;
+$log_levels->{'notice'} = 30;
 $log_levels->{'debug'} = 100;
 
 #-----------------------------------------------------------------
