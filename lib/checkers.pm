@@ -59,7 +59,7 @@ sub PingChecker($$) {
     
     my $check_pid = waitpid($checker->{pid}, WNOHANG); # To prevent collecting children as zombies
     if (!$send_res || !($recv_res =~ /^OK/) || $check_pid == -1) {
-        LogWarn("Checker is dead!");
+        LogWarn("Checker '$name' is dead!");
         $checker = SpawnChecker($name);
     }
 
