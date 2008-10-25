@@ -59,10 +59,10 @@ sub StartSlave($) {
     
     if ($old_peer_ip) {
         my $old_peer = FindHostByIP($old_peer_ip);
-	if (!$old_peer) {
-	    return "ERROR: Invalid master host in slave status!";
-	}
-	
+        if (!$old_peer) {
+            return "ERROR: Invalid master host in slave status!";
+        }
+
         # get peer connection info
         my $old_peer_host = $config->{host}->{$old_peer}->{ip};
         my $old_peer_port = $config->{host}->{$old_peer}->{port};
@@ -72,11 +72,10 @@ sub StartSlave($) {
         my $old_peer_dbh = MysqlConnect($old_peer_host, $old_peer_port, $old_peer_user, $old_peer_pass);
         if ($old_peer_dbh) {
             my $row = MysqlQuery($old_peer_dbh, "SHOW MASTER STATUS");
-    	    $wait_log = $row->{File};
-	    $wait_pos = $row->{Position};
-	    $old_peer_dbh->disconnect;
+            $wait_log = $row->{File};
+            $wait_pos = $row->{Position};
+            $old_peer_dbh->disconnect;
         }
-	
     }
     
     # Sync with old master logs or slave logs
@@ -105,13 +104,20 @@ sub StartSlave($) {
 
     $peer_dbh->disconnect;
 
+    my $repl_user = $peer_user;
+    my $repl_pass = $peer_pass;
+
+    if (defined($config->{replication_user}) && defined($config->{replication_password})) {
+        $repl_user = $config->{replication_user};
+        $repl_pass = $config->{replication_password};
+    }
 
     # Change master
     my $sql = "CHANGE MASTER TO " .
               "  MASTER_HOST='$peer_host'," .
               "  MASTER_PORT=$peer_port," .
-              "  MASTER_USER='$peer_user'," .
-              "  MASTER_PASSWORD='$peer_pass'," .
+              "  MASTER_USER='$repl_user'," .
+              "  MASTER_PASSWORD='$repl_pass'," .
               "  MASTER_LOG_FILE='$master_log'," .
               "  MASTER_LOG_POS=$master_pos";
     my $res = ExecuteQuery($this_dbh, $sql);
