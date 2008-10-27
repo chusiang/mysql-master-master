@@ -473,8 +473,8 @@ sub SetupReplication() {
     if ($src_mode eq 'slave' && $dst_mode eq 'slave') {
         $my_master_info->{'master_host'} = $status->{slave}->{'Master_Host'};
         $my_master_info->{'master_port'} = $status->{slave}->{'Master_Port'};
-        $my_master_info->{'master_log'} = $status->{slave}->{'Master_Log_File'};
-        $my_master_info->{'master_pos'} = $status->{slave}->{'Read_Master_Log_Pos'};
+        $my_master_info->{'master_log'} = $status->{slave}->{'Relay_Master_Log_File'};
+        $my_master_info->{'master_pos'} = $status->{slave}->{'Exec_Master_Log_Pos'};
     }
         
     # Restore slave from master - use master as replication source

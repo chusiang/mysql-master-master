@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# mmm_agent    This shell script takes care of starting and stopping
+# mmm_mon      This shell script takes care of starting and stopping
 #              the mmm monitoring daemon.
 #
 # chkconfig: - 64 36
