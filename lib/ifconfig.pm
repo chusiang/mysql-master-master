@@ -79,13 +79,35 @@ sub SendArpNotification($$) {
     my $if_mask;   
     
     if ($^O eq 'linux') {
-        # Get params for send_arp
+        # Get path to arping
+        my $arp_util = `which arping`;
+        chomp($arp_util);
+
+        if ($arp_util eq "") {
+            print "ERROR: Could not find arping!\n";
+            exit(1);
+        }
+
+        # Get params for arping
         my $ipaddr = `/sbin/ifconfig $if`;
 
         # Get broadcast address and netmask
-        $ipaddr =~ /Bcast:\s*([\d\.]+)\s*Mask:\s*([\d\.]+)/i;
+        $ipaddr =~ /Bcast:\s*([\d\.]+)/i;
         $if_bcast = $1;
-        $if_mask = $2;
+
+        # Execute the arping command
+        my $arp_param = "";
+        # Check parameters for arping
+        if (`$arp_util 2>&1` =~ /\[ -S <host\/ip> \]/) {
+            $arp_param = "-i $if -S $ip";
+        }
+        elsif (`$arp_util 2>&1` =~ /\[-s source\]/) {
+            $arp_param = "-I $if -s $ip";
+        } else {
+            print "ERROR: Unknown arping version!\n";
+            exit(1);
+        }
+        `$arp_util -c 1 $arp_param $if_bcast`
     } elsif ($^O eq 'solaris') {
         # Get params for send_arp
         my $ipaddr = `/usr/sbin/ifconfig $if`;
@@ -94,11 +116,11 @@ sub SendArpNotification($$) {
         $ipaddr =~ /netmask\s*([0-9a-f]+)\s*broadcast\s*([\d\.]+)/i;
         $if_bcast = $1;
         $if_mask = $2;
+        `$SELF_DIR/bin/sys/send_arp -i 100 -r 5 -p /tmp/send_arp $if $ip auto $if_bcast $if_mask`;
     } else {
         print "ERROR: Unsupported platform!\n";
         exit(1);
     }
-    `$SELF_DIR/bin/sys/send_arp -i 100 -r 5 -p /tmp/send_arp $if $ip auto $if_bcast $if_mask`;
 }
 
 1;
