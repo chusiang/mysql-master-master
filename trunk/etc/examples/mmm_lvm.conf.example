@@ -30,6 +30,10 @@ copy_method scp
     command scp -c blowfish -r %SSH_USER%@%IP%:%SNAPSHOT%/%CLONE_DIR% %DEST_DIR%/
     restore_command cp -axv %BACKUP_DIR%/* %DATA_DIR%/
 
+copy_method rsync
+    command rsync --progress -av %SSH_USER%@%IP%:%SNAPSHOT%/%CLONE_DIR% %DEST_DIR%/
+    restore_command cp -axv %BACKUP_DIR%/* %DATA_DIR%/
+
 copy_method rdiff
     command rdiff-backup --ssh-no-compression -v 5 !--include %SNAPSHOT%/%CLONE_DIR%! --exclude %SNAPSHOT% %SSH_USER%@%IP%::%SNAPSHOT%/ %DEST_DIR%/
     single_run yes
