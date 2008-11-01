@@ -206,7 +206,7 @@ sub GetActiveMaster() {
 
 #-----------------------------------------------------------------
 sub UpdateStatusFile() {
-    open(STATUS, ">" . $config->{status_path}) || die "Can't open status file '$config->{status_path}' for writing!\n";
+    open(STATUS, ">" . $config->{status_path} . '.tmp') || die "Can't open temporary status file '$config->{status_path}.tmp' for writing!\n";
     foreach my $server (keys(%$servers_status)) {
         $status = $servers_status->{$server};
         next unless $status;
@@ -221,6 +221,7 @@ sub UpdateStatusFile() {
         printf(STATUS "%s:%s:%s:%s\n", $server, $status->{version}, $status->{state}, join(',', @roles));
     }
     close(STATUS);
+    rename($config->{status_path} . '.tmp', $config->{status_path}) || die "Can't savely overwrite status file '$config->{status_path}'!\n";
 }
 
 
