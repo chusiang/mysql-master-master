@@ -115,6 +115,11 @@ sub CheckServersStates() {
         UpdateStatusFile();
         
         my $peer_name = $config->{host}->{$host_name}->{peer};
+
+        if ($peer_name eq '' && $config->{host}->{$host_name}->{mode} eq 'slave') {
+            $peer_name = GetActiveMaster();
+        }
+
         my $host = $servers_status->{$host_name};
         my $peer = $servers_status->{$peer_name};
         my $host_checks = $checks_status->{$host_name};
