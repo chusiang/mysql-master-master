@@ -193,6 +193,18 @@ sub GetServerRoles($) {
 }
 
 #-----------------------------------------------------------------
+sub GetActiveMaster() {
+    $role = $roles->{$config->{active_master_role}};
+    return '' unless $role;
+
+    my $role_ips = $role->{ips};
+        
+    foreach my $ip (keys(%$role_ips)) {
+        return $role_ips->{$ip}->{assigned_to};
+    }
+}
+
+#-----------------------------------------------------------------
 sub UpdateStatusFile() {
     open(STATUS, ">" . $config->{status_path}) || die "Can't open status file '$config->{status_path}' for writing!\n";
     foreach my $server (keys(%$servers_status)) {
