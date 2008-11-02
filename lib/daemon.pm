@@ -174,7 +174,10 @@ sub CheckServersStates() {
 	        my $res = SendStatusToAgent($host_name);
             if (!$res) {
                 LogNotice("Can't send offline status notification to '$host_name'! Killing it!");
-                ExecuteBin('kill_host', $host_name);
+                $res = ExecuteBin('kill_host', $host_name);
+                if (!$res) {
+                    LogTrap("Daemon: Host '$host_name' went down! We could not reach the agent on it nor kill the host! There may be some duplicate ips now!!!");
+                }
             }
             
             $cnt++;
@@ -219,7 +222,10 @@ sub CheckServersStates() {
             my $res = SendStatusToAgent($host_name);
             if (!$res) {
                 LogNotice("Can't send offline status notification to '$host_name'! Killing it!");
-                ExecuteBin('kill_host', $host_name);
+                $res = ExecuteBin('kill_host', $host_name);
+                if (!$res) {
+                    LogTrap("Daemon: Host '$host_name' went down! We could not reach the agent on it nor kill the host! There may be some duplicate ips now!!!");
+                }
             }
             
             $cnt++;
