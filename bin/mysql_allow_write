@@ -42,7 +42,8 @@ sub MySqlAllowWrite($) {
     
     # set read_only to OFF
     (my $read_only) = $dbh->selectrow_array(q{select @@read_only});
-    return "OK" unless $read_only;
+    return "ERROR: SQL Query Error: " . $dbh->errstr unless (defined $read_only);
+    return "OK" unless ($read_only);
 
     my $sth = $dbh->prepare("set global read_only=0");
     my $res = $sth->execute;
