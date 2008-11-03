@@ -593,19 +593,19 @@ sub GetExclusiveRoleOwner($) {
 
 #-----------------------------------------------------------------
 sub MoveExclusiveRole($$) {
-    my ($role, $host) = @_;
+    my ($role_name, $host) = @_;
     
-    my $role = $roles->{$role};
+    my $role = $roles->{$role_name};
     my $role_ips = $role->{ips};
     my @all_ips = keys(%$role_ips);
     my $ip = $all_ips[0];
     $role_ips->{$ip}->{assigned_to} = $host;
 
     # Send notification to all affected hosts
-    NotifyAffectedHosts($role);
+    NotifyAffectedHosts($role_name);
 
     # Notify all slave hosts on master changes
-    if ($role eq $config->{active_master_role}) {
+    if ($role_name eq $config->{active_master_role}) {
         my $slaves = GetSlavesList();
         foreach my $slave (@$slaves) {
             # Notify affected host
