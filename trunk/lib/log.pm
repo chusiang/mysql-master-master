@@ -70,6 +70,7 @@ sub PrintLog {
         seek(LOG, 0, 2);    
         print(LOG "[$now]: $$: $msg\n");
         flock(LOG, LOCK_UN);
+        close(LOG);
         
         if ($log->{email}) {
             SendLogEmailNotice($msg, $log->{email});
