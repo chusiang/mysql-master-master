@@ -101,12 +101,14 @@ sub SetStatusCommand($) {
     my $params = $cmd->{params};
     my ($host_name, $version, $new_state, $new_roles_str, $new_master) = @$params;
 
+    LogDebug("SET_STATUS $version, $new_state, $new_roles_str, $new_master");
+
     # Check host name
     return "ERROR: Invalid hostname in command ($host_name)! My name is '$config->{this}'!" if ($config->{this} ne $host_name);
     
     # Check version
     if ($version < $server_version) {
-        LogWarn("SetStatus: Version in command is older, than mine!");
+        LogWarn("SetStatus: Version in command ($version) is older, than mine ($server_version)!");
     }
     
     if ($config->{mode} eq 'slave' && $active_master ne $new_master && $new_state eq 'ONLINE' && $new_master ne "") {
