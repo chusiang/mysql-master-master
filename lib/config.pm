@@ -267,6 +267,7 @@ sub CreateServersStatus() {
                 AssignRole($role, $host);
             }
         } else {
+            LogTrap("Daemon: No saved state for host $host - setting state to HARD_OFFLINE");
             $servers_status->{$host}->{state} = HARD_OFFLINE;
             $servers_status->{$host}->{version} = 0;
         }
