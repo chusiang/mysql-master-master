@@ -64,7 +64,7 @@ sub ReadConfig($) {
 
 #-----------------------------------------------------------------
 sub CheckPidFile() {
-    $unclean_start = 0;
+    my $unclean_start = 0;
     
     # Stale or active pid file
     if (-f $config->{pid_path}) {
@@ -194,8 +194,8 @@ sub GetServerRoles($) {
 
 #-----------------------------------------------------------------
 sub GetActiveMaster() {
-    $role = $roles->{$config->{active_master_role}};
-    return '' unless $role;
+    my $role_name = $roles->{$config->{active_master_role}};
+    return '' unless $role_name;
 
     my $role_ips = $role->{ips};
         
@@ -617,23 +617,25 @@ sub MoveExclusiveRole($$) {
 
 #-----------------------------------------------------------------
 sub OrphanExclusiveRole($) {
-    my $role = shift;
+    my $role_name = shift;
     
-    my $role = $roles->{$role};
+    my $role = $roles->{$role_name};
     my $role_ips = $role->{ips};
     my @all_ips = keys(%$role_ips);
     my $ip = $all_ips[0];
     my $old_owner = $role_ips->{$ip}->{assigned_to};
     $role_ips->{$ip}->{assigned_to} = "";
 
-    my $child_hosts = ClearChildRoles($role);
+    LogDebug("OrphanExclusiveRole: role $role_name, ip $ip, old owner $old_owner");
+
+    my $child_hosts = ClearChildRoles($role_name);
     foreach my $child (@$child_hosts) {
         LogNotice("Notifying affected host $child about role clear.");
         SendStatusToAgent($child);
     }
 
     # Notify all slave hosts on master changes
-    if ($role eq $config->{active_master_role}) {
+    if ($role_name eq $config->{active_master_role}) {
         my $slaves = GetSlavesList();
         foreach my $slave (@$slaves) {
             # Notify affected host
@@ -647,11 +649,11 @@ sub OrphanExclusiveRole($) {
 
 #-----------------------------------------------------------------
 sub IsOrphanedRole($) {
-    my $role = shift;
+    my $role_name = shift;
     
-    return 0 if ($role eq '');
+    return 0 if ($role_name eq '');
     
-    my $role = $roles->{$role};
+    my $role = $roles->{$role_name};
     my $role_ips = $role->{ips};
     my @all_ips = keys(%$role_ips);
     my $ip = $all_ips[0];
