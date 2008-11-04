@@ -266,10 +266,42 @@ sub CreateServersStatus() {
             foreach my $role (@$saved_roles) {
                 AssignRole($role, $host);
             }
-        } else {
-            LogTrap("Daemon: No saved state for host $host - setting state to HARD_OFFLINE");
-            $servers_status->{$host}->{state} = HARD_OFFLINE;
-            $servers_status->{$host}->{version} = 0;
+        }
+        else {
+            if (defined($checks_status->{$host})
+             && $checks_status->{$host}->{ping}
+             && $checks_status->{$host}->{mysql}
+            ) {
+                # Try to get state info from agent
+                my $res = SendAgentCommand($host, 'GET_STATUS');
+                if ($res && $res =~ /(.*)\|(.*)?\|.*UP\:(.*)/) {
+                   my ($remote_host, $remote_version, $remote_state, $remote_roles_str, $remote_master) = split(':', $2);
+                   if ($remote_state ne "UNKNOWN") {
+                        LogTrap("Daemon: Restored state $remote_state and roles from agent on host $host");
+                        $servers_status->{$host}->{state} = $remote_state;
+                        $servers_status->{$host}->{version} = 0; # FIXME
+                        # TODO maybe we should prevent a role _change_ of the "active_master"-role?
+                        my @remote_roles = split(',', $remote_roles_str);
+                        foreach my $role (@remote_roles) {
+                            AssignRole($role, $host);
+                        }
+                    }
+                    else {
+                        LogTrap("Daemon: No saved state and agent on host $host reportet state UNKNOWN - setting state to HARD_OFFLINE");
+                        $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                        $servers_status->{$host}->{version} = 0;
+                    }
+                }
+                else {
+                    LogTrap("Daemon: No saved state and unreachable agent on host $host - setting state to HARD_OFFLINE");
+                    $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                    $servers_status->{$host}->{version} = 0;
+                }
+            } else {
+                LogTrap("Daemon: No saved state for unreachable host $host - setting state to HARD_OFFLINE");
+                $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                $servers_status->{$host}->{version} = 0;
+            }
         }
     }
     
@@ -292,7 +324,7 @@ sub AssignRole($$) {
         print "Detected role change: ip '$ip' was removed from role '$role_name'\n";
         return;
     }
-    print "Adding role: '$role_name' with ip '$ip'\n";
+    print "Adding role: '$role_name' with ip '$ip' to host '$host'\n";
     
     $roles->{$role_name}->{ips}->{$ip}->{assigned_to} = $host;
 }
@@ -445,6 +477,7 @@ sub NotifyAffectedHosts($) {
 
 #-----------------------------------------------------------------
 sub ProcessOrphanedRoles() {
+    LogDebug('ProcessOrphanedRoles()');
     my $cnt = 0;
     
     foreach my $role_name (keys(%$roles)) {
@@ -485,6 +518,7 @@ sub ProcessOrphanedRoles() {
         }
     }
     
+    LogDebug("ProcessOrphanedRoles(): $cnt");
     return $cnt;
 }
 
@@ -537,6 +571,7 @@ sub MoveOneRoleIP($$$) {
 
 #-----------------------------------------------------------------
 sub BalanceRoles() {
+    LogDebug('BalanceRoles()');
     my $cnt = 0;
     
     foreach my $role_name (keys(%$roles)) {
@@ -577,6 +612,7 @@ sub BalanceRoles() {
         }
     }
     
+    LogDebug("BalanceRoles(): $cnt");
     return $cnt;
 }
 

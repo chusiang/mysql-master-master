@@ -64,6 +64,7 @@ sub CreateCommand {
 
 #-----------------------------------------------------------------
 sub ProcessCommands($) {
+    LogDebug('ProcessCommands()');
     my $command_queue = shift;
     
     my $res = 0;
@@ -74,6 +75,7 @@ sub ProcessCommands($) {
         }
     }
     
+    LogDebug("ProcessCommands(): $res");
     return $res;
 }
 
@@ -109,6 +111,7 @@ sub ProcessDaemonCommand($) {
 
 #-----------------------------------------------------------------
 sub CheckServersStates() {
+    LogDebug('CheckServersStates()');
     my $cnt = 0;
     foreach my $host_name (keys(%$servers_status)) {
         # Save status info
@@ -303,6 +306,7 @@ sub CheckServersStates() {
         }
     }
     
+    LogDebug("CheckServersStates(): $cnt");
     return $cnt;
 }
 
@@ -326,7 +330,7 @@ sub SendStatusToAgent($) {
     
     my $res = SendAgentCommand($host_name, 'SET_STATUS', $host_name, $status->{version}, $status->{state}, join(',', @roles), $master_host);
     if (!$res) {
-        LogError("Daemon: Error sending status command to $host_name. Result: '$res'");
+        LogError("Daemon: Error sending status command to $host_name.");
     }
 
     if ($res =~ /(.*)\|.*UP\:(.*)/) {

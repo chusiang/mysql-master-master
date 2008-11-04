@@ -54,6 +54,9 @@ our $mysql_sem = new Thread::Semaphore;
 # Status changing semaphore
 our $status_sem = new Thread::Semaphore;
 
+# We need to know how previous session has been finished
+our $unclean_start : shared = CheckPidFile();
+
 # Roles list
 our $roles : shared = CreateRolesList();
 
@@ -64,9 +67,6 @@ our $checks_status : shared = CreateChecksStatus();
 our $servers_status : shared = CreateServersStatus();
 
 #print Dumper($servers_status);
-
-# We need to know how previous session has been finished
-our $unclean_start : shared = CheckPidFile();
 
 # Go to background
 Proc::Daemon::Init if ($config->{debug} =~ /^(off|no|0)$/i);
