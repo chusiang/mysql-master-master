@@ -77,6 +77,7 @@ sub HandleCommand($) {
     my $commands = {};
     $commands->{PING} = \&PingCommand;
     $commands->{SET_STATUS} = \&SetStatusCommand;
+    $commands->{GET_STATUS} = \&GetStatusCommand;
     
     # Handle command
     if ($commands->{$command->{name}}) {
@@ -91,8 +92,21 @@ sub PingCommand($) {
     return "OK: Pinged!";
 }
 
+#-----------------------------------------------------------------
+sub GetStatusCommand($) {
+    my $answer = join (':', (
+        $config->{this},
+        $server_version,
+        $server_state,
+        join(',', @server_roles),
+        $active_master
+    ));
+    LogDebug("GetStatusCommand - result: $answer");
+    return "OK: Returning status!|$answer";
+}
+
 #
-#my $res = SendAgentCommand($host_name, 'SET_STATUS', $host_name, $status->{version}, $status->{state}, join(',', @roles));
+#my $res = SendAgentCommand($host_name, 'SET_STATUS', $host_name, $status->{version}, $status->{state}, join(',', @roles), $master_host);
 #-----------------------------------------------------------------
 sub SetStatusCommand($) {
     my $cmd = shift;
