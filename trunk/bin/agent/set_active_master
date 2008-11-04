@@ -53,6 +53,8 @@ sub StartSlave($) {
 
     # Get slave info
     my $slave_status = MysqlQuery($this_dbh, "SHOW SLAVE STATUS");
+    return "ERROR: SQL Query Error: " . $this_dbh->errstr unless($slave_status);
+    
     my $wait_log = $slave_status->{Master_Log_File};
     my $wait_pos = $slave_status->{Read_Master_Log_Pos};
     my $old_peer_ip = $slave_status->{Master_Host};
@@ -72,6 +74,8 @@ sub StartSlave($) {
         my $old_peer_dbh = MysqlConnect($old_peer_host, $old_peer_port, $old_peer_user, $old_peer_pass);
         if ($old_peer_dbh) {
             my $row = MysqlQuery($old_peer_dbh, "SHOW MASTER STATUS");
+            return "ERROR: SQL Query Error: " . $old_peer_dbh->errstr unless($row);
+            
             $wait_log = $row->{File};
             $wait_pos = $row->{Position};
             $old_peer_dbh->disconnect;
@@ -99,6 +103,8 @@ sub StartSlave($) {
     
     # Get master position
     my $row = MysqlQuery($peer_dbh, "SHOW MASTER STATUS");
+    return "ERROR: SQL Query Error: " . $this_dbh->errstr unless($row);
+    
     my $master_log = $row->{File};
     my $master_pos = $row->{Position};
 
@@ -146,7 +152,7 @@ sub MysqlQuery($$) {
 
     my $sth = $dbh->prepare($query);
     my $res = $sth->execute;
-    return $res unless($res);
+    return undef unless($res);
 
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
