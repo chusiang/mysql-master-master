@@ -164,9 +164,9 @@ sub SetOfflineCommand($) {
     my $affected_children = ClearServerRoles($host);
     foreach my $child (@$affected_children) {
         my $res = SendStatusToAgent($child);
-	    if (!$res) {
-	        LogWarn("Can't notify affected child host '$child' about parent state change");
-	    }
+        if (!$res) {
+            LogWarn("Can't notify affected child host '$child' about parent state change");
+        }
     }
             
     # Notify host about its state

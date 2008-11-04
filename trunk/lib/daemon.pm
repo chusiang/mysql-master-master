@@ -15,27 +15,27 @@ sub DaemonMain($$) {
         # Check all servers and change their states if necessary
         $status_sem->down;
         $n = CheckServersStates();
-	    $status_sem->up;
-	
+        $status_sem->up;
+        
         if ($n) {
             LogNotice("Daemon: $n servers changed their states");
             LogDebug("Daemon: Servers status: " . Dumper($servers_status));
         }
         
         # Process orphaned roles and try to find eligible hosts for them
-	    $status_sem->down;
+        $status_sem->down;
         $n = ProcessOrphanedRoles();
-	    $status_sem->up;
-	
+        $status_sem->up;
+        
         if ($n) {
             LogNotice("Daemon: $n orphaned roles were attached to new servers");
             LogDebug("Daemon: Roles status: " . Dumper($roles));
         }
 
         # Process all assigned roles and try to balance them between cluster nodes
-	    $status_sem->down;
+        $status_sem->down;
         $n = BalanceRoles();
-	    $status_sem->up;
+        $status_sem->up;
         if ($n) {
             LogNotice("Daemon: $n assigned roles were moved to new servers");
             LogDebug("Daemon: Roles status: " . Dumper($roles));
@@ -148,22 +148,22 @@ sub CheckServersStates() {
         }
 
         # AWAITING_RECOVERY -> ONLINE (if hard_offline period was short and uptime is not decreased)
-	    if ($host->{state} eq 'AWAITING_RECOVERY' && $host_checks->{ping} && $host_checks->{mysql} && $host_checks->{rep_backlog} && $host_checks->{rep_threads}) {
-	        my $uptime_diff = $host->{uptime} - $host->{last_uptime};
-	        LogDebug("AWAITING_RECOVERY state on $host_name... Uptime change is $uptime_diff");
-	        if ($host->{last_uptime} > 0 && $uptime_diff > 0 && $uptime_diff < 60) {
-        	    # Server is online now
+        if ($host->{state} eq 'AWAITING_RECOVERY' && $host_checks->{ping} && $host_checks->{mysql} && $host_checks->{rep_backlog} && $host_checks->{rep_threads}) {
+            my $uptime_diff = $host->{uptime} - $host->{last_uptime};
+            LogDebug("AWAITING_RECOVERY state on $host_name... Uptime change is $uptime_diff");
+            if ($host->{last_uptime} > 0 && $uptime_diff > 0 && $uptime_diff < 60) {
+                # Server is online now
                 $host->{state} = 'ONLINE';
     
                 LogTrap("Daemon: State change($host_name): AWAITING_RECOVERY -> ONLINE. Uptime diff = $uptime_diff seconds");
 
-	            # Notify host about its state
-    		    my $res = SendStatusToAgent($host_name);
+                # Notify host about its state
+                my $res = SendStatusToAgent($host_name);
             
-        	    $cnt++;
-        	    next;
-	        }
-	    }
+                $cnt++;
+                next;
+            }
+        }
         
         # REPLICATION_FAIL || REPLICATION_DELAY -> HARD_OFFLINE
         if (($host->{state} eq 'REPLICATION_FAIL' || $host->{state} eq 'REPLICATION_DELAY') && (!$host_checks->{ping} || !$host_checks->{mysql})) {
@@ -171,7 +171,7 @@ sub CheckServersStates() {
             $host->{state} = 'HARD_OFFLINE';
             
             # Trying to send status to host
-	        my $res = SendStatusToAgent($host_name);
+            my $res = SendStatusToAgent($host_name);
             if (!$res) {
                 LogNotice("Can't send offline status notification to '$host_name'! Killing it!");
                 $res = ExecuteBin('kill_host', $host_name);
@@ -211,12 +211,12 @@ sub CheckServersStates() {
 
             # Clear roles list and get list of affected children
             my $affected_children = ClearServerRoles($host_name);
-	        foreach my $child (@$affected_children) {
-	            my $res = SendStatusToAgent($child);
-		        if (!$res) {
-		            LogWarn("Warning: Can't notify affected child host '$child' about parent state change");
-		        }
-	        }
+            foreach my $child (@$affected_children) {
+                my $res = SendStatusToAgent($child);
+                if (!$res) {
+                    LogWarn("Warning: Can't notify affected child host '$child' about parent state change");
+                }
+            }
             
             # Notify host about its state
             my $res = SendStatusToAgent($host_name);
@@ -241,12 +241,12 @@ sub CheckServersStates() {
 
             # Clear roles list and get list of affected children
             my $affected_children = ClearServerRoles($host_name);
-	        foreach my $child (@$affected_children) {
-	            my $res = SendStatusToAgent($child);
-		        if (!$res) {
-		            LogWarn("Can't notify affected child host '$child' about parent state change");
-		        }
-	        }
+            foreach my $child (@$affected_children) {
+                my $res = SendStatusToAgent($child);
+                if (!$res) {
+                    LogWarn("Can't notify affected child host '$child' about parent state change");
+                }
+            }
             
             # Notify host about its state
             my $res = SendStatusToAgent($host_name);
@@ -258,11 +258,11 @@ sub CheckServersStates() {
         # ONLINE -> REPLICATION_DELAY
         if ($host->{state} eq 'ONLINE' 
          && $peer->{state} eq 'ONLINE' 
-	     && $host_checks->{ping} 
-	     && $host_checks->{mysql} 
-	     && $host_checks->{rep_threads} 
-	     && !$host_checks->{rep_backlog}) 
-	    {
+         && $host_checks->{ping} 
+         && $host_checks->{mysql} 
+         && $host_checks->{rep_threads} 
+         && !$host_checks->{rep_backlog} 
+        ) {
             LogTrap("Daemon: State change($host_name): ONLINE -> REPLICATION_DELAY");
             
             # Server is offline and has no roles
@@ -270,12 +270,12 @@ sub CheckServersStates() {
 
             # Clear roles list and get list of affected children
             my $affected_children = ClearServerRoles($host_name);
-	        foreach my $child (@$affected_children) {
-	            my $res = SendStatusToAgent($child);
-		        if (!$res) {
-		            LogWarn("Can't notify affected child host '$child' about parent state change");
-		        }
-	        }
+            foreach my $child (@$affected_children) {
+                my $res = SendStatusToAgent($child);
+                if (!$res) {
+                    LogWarn("Can't notify affected child host '$child' about parent state change");
+                }
+            }
             
             # Notify host about its state
             my $res = SendStatusToAgent($host_name);
@@ -286,10 +286,10 @@ sub CheckServersStates() {
         
         # REPLICATION_DELAY | REPLICATION_FAIL -> ONLINE
         if (($host->{state} eq 'REPLICATION_DELAY' || $host->{state} eq 'REPLICATION_FAIL') 
-	     && $host_checks->{ping} 
-	     && $host_checks->{mysql} 
-	     && (($host_checks->{rep_backlog} && $host_checks->{rep_threads}) || $peer->{state} ne 'ONLINE')
-	    ) {
+         && $host_checks->{ping} 
+         && $host_checks->{mysql} 
+         && (($host_checks->{rep_backlog} && $host_checks->{rep_threads}) || $peer->{state} ne 'ONLINE')
+        ) {
             LogTrap("Daemon: State change($host_name): $host->{state} -> ONLINE");
             
             # Server is online now
@@ -330,16 +330,16 @@ sub SendStatusToAgent($) {
     }
 
     if ($res =~ /(.*)\|.*UP\:(.*)/) {
-	    $res = $1;
+        $res = $1;
         my $uptime = $2;
-	    LogDebug("Daemon: Got uptime from $host_name: $uptime");
+        LogDebug("Daemon: Got uptime from $host_name: $uptime");
 
-	    $status->{uptime} = 0 + $uptime;
-	    if ($status->{state} eq 'ONLINE') {
-	        $status->{last_uptime} = $status->{uptime};
-	    }
+        $status->{uptime} = 0 + $uptime;
+        if ($status->{state} eq 'ONLINE') {
+            $status->{last_uptime} = $status->{uptime};
+        }
 
-	    LogDebug(Dumper($status));
+        LogDebug(Dumper($status));
     }
 
     return $res;

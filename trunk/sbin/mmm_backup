@@ -25,10 +25,10 @@ my $host_name;
 my $copy_method;
 my $dest_dir;
 
-GetOptions("config=s" => \$config_file,
-           "host=s" => \$host_name,
-	       "copy-method=s" => \$copy_method,
-	       "dest-dir=s" => \$dest_dir);
+GetOptions( "config=s"      => \$config_file,
+            "host=s"        => \$host_name,
+            "copy-method=s" => \$copy_method,
+            "dest-dir=s"    => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file

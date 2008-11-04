@@ -33,9 +33,9 @@ sub CommandMain() {
         }
         
         close($new_sock);
-	
-	CheckRoles();
-	
+        
+        CheckRoles();
+        
         LogDebug("Listener: Disconnect!");
     }
     
@@ -115,9 +115,9 @@ sub SetStatusCommand($) {
         LogNotice("Changing active master: $new_master");
         $res = ExecuteBin("agent/set_active_master", "'$new_master'");
         LogDebug("Result: $res");
-	    if ($res) {
-	        $active_master = $new_master;
-	    }
+        if ($res) {
+            $active_master = $new_master;
+        }
     }
     
     # Parse roles
@@ -141,9 +141,9 @@ sub SetStatusCommand($) {
     
     if ($changes_count) {
         LogNotice("We have some new roles added or old deleted!");
-	
-	    LogNotice("Deleted: " . Dumper(\@deleted_roles));
-	    LogNotice("Added: " . Dumper(\@added_roles));
+        
+        LogNotice("Deleted: " . Dumper(\@deleted_roles));
+        LogNotice("Added: " . Dumper(\@added_roles));
 
         foreach my $role (@deleted_roles) {
             LogDebug("Deleting role: $role");
@@ -158,7 +158,7 @@ sub SetStatusCommand($) {
         }
         
         @server_roles = @new_roles;
-	    LogDebug("New Server roles: " . Dumper(\@server_roles));
+        LogDebug("New Server roles: " . Dumper(\@server_roles));
     }
     
     # Process state change if any

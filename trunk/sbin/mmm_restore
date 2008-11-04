@@ -29,12 +29,12 @@ my $override_destdir = '';
 my $skip_mysqld = 0;
 my $dry_run = 0;
 
-GetOptions("config=s" => \$config_file,
-	   "backup-dir=s" => \$backup_dir,
-	   "mode=s" => \$restore_mode,
-	   "data-dir=s" => \$override_destdir,
-	   "version=s" => \$version,
-	   "dry-run" => \$dry_run);
+GetOptions( "config=s"     => \$config_file,
+            "backup-dir=s" => \$backup_dir,
+            "mode=s"       => \$restore_mode,
+            "data-dir=s"   => \$override_destdir,
+            "version=s"    => \$version,
+            "dry-run"      => \$dry_run);
 
 $skip_mysqld = 1 if ($restore_mode eq 'data-only');
 

@@ -28,19 +28,19 @@ sub PerformCheck($$) {
         my $sth = $dbh->prepare("SHOW SLAVE STATUS");
         my $res = $sth->execute;
 
-	if ($dbh->err) {
-	    my $ret = "UNKNOWN: Unknown state. Execute error: " . $dbh->errstr;
-	    $sth->finish;
-	    $dbh->disconnect();
-	    $dbh = undef;
-	    return $ret;
-	}
+        if ($dbh->err) {
+            my $ret = "UNKNOWN: Unknown state. Execute error: " . $dbh->errstr;
+            $sth->finish;
+            $dbh->disconnect();
+            $dbh = undef;
+            return $ret;
+        }
 
         unless($res) {
             $sth->finish;
-	    $dbh->disconnect();
+            $dbh->disconnect();
             $dbh = undef;
-	    return "ERROR: Replication is not running";
+            return "ERROR: Replication is not running";
         }
     
         my $status = $sth->fetchrow_hashref;

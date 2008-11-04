@@ -43,7 +43,7 @@ sub SendLogEmailNotice($$) {
     my $res = open(SENDMAIL, "|$sendmail");
     unless ($res) { 
         LogError("Error: Cannot open $sendmail: $!");
-	    return 1;
+        return 1;
     }
     print SENDMAIL "From: mmm_mon\@kovyrin.net\n";
     print SENDMAIL "Subject: [$now] MMM Notification\n";

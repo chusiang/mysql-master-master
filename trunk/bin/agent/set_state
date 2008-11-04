@@ -40,14 +40,14 @@ sub SetState($$) {
     
     if ($new_state eq 'ADMIN_OFFLINE') {
         LogDebug("Turning off slave in this host");
-	    ExecuteBin("turn_off_slave");
-	    return "OK: state changed to ADMIN_OFFLINE";
+        ExecuteBin("turn_off_slave");
+        return "OK: state changed to ADMIN_OFFLINE";
     }
     
     if ($old_state eq 'ADMIN_OFFLINE') {
         LogDebug("Turning on slave in this host");
-	    ExecuteBin("turn_on_slave");
-	    return "OK: state changed from ADMIN_OFFLINE";
+        ExecuteBin("turn_on_slave");
+        return "OK: state changed from ADMIN_OFFLINE";
     }
     
     return "OK: state changed!";
