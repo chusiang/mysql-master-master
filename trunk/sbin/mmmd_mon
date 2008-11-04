@@ -48,9 +48,6 @@ my $cfg_file = "mmm_mon$postfix.conf";
 print "Reading config file: '$cfg_file'\n";
 our $config : shared = ReadConfig($cfg_file);
 
-# Mysql protection semaphore
-our $mysql_sem = new Thread::Semaphore;
-
 # Status changing semaphore
 our $status_sem = new Thread::Semaphore;
 
