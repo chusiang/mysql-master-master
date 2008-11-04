@@ -26,11 +26,11 @@ my $clone_mode;
 my $copy_method;
 my $dest_dir;
 
-GetOptions("config=s" => \$config_file,
-           "host=s" => \$host_name,
-           "clone-mode=s" => \$clone_mode,
-           "copy-method=s" => \$copy_method,
-           "dest-dir=s" => \$dest_dir);
+GetOptions( "config=s"      => \$config_file,
+            "host=s"        => \$host_name,
+            "clone-mode=s"  => \$clone_mode,
+            "copy-method=s" => \$copy_method,
+            "dest-dir=s"    => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file

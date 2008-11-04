@@ -24,10 +24,10 @@ my $host_name;
 my $copy_method;
 my $dest_dir;
 
-GetOptions("config=s" => \$config_file,
-           "host=s" => \$host_name,
-           "copy-method=s" => \$copy_method,
-           "dest-dir=s" => \$dest_dir);
+GetOptions( "config=s"      => \$config_file,
+            "host=s"        => \$host_name,
+            "copy-method=s" => \$copy_method,
+            "dest-dir=s"    => \$dest_dir);
 
 #-----------------------------------------------------------------
 # Read config file
@@ -254,13 +254,13 @@ sub CopyFilesFromRemoteSingleRun($$$) {
     if ($copy_cmd =~ /!(.*)!/) {
         my $sub_tmpl = $1;
         my $sub_cmd = "";
-	    for my $dir (@clone_dirs) {
-	        my $partial = $sub_tmpl;
-	        $partial =~ s/%CLONE_DIR%/$dir/ig;
-	        $sub_cmd .= " $partial";
-	    }
-	
-	    $copy_cmd =~ s/!.*!/$sub_cmd/;
+        for my $dir (@clone_dirs) {
+            my $partial = $sub_tmpl;
+            $partial =~ s/%CLONE_DIR%/$dir/ig;
+            $sub_cmd .= " $partial";
+        }
+        
+        $copy_cmd =~ s/!.*!/$sub_cmd/;
     }
     
     LogDebug("Final command: '$copy_cmd'");

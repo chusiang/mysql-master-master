@@ -140,23 +140,23 @@ sub CreateRolesList() {
     foreach my $role (sort(keys(%$cfg_roles))) {
         $roles->{$role} = &share({});
         $roles->{$role}->{mode} = $cfg_roles->{$role}->{mode};
-	
-	    # Parse servers
+        
+        # Parse servers
         my @role_servers : shared = split(/\s*\,\s*/, $cfg_roles->{$role}->{servers});
         $roles->{$role}->{hosts} = \@role_servers; 
         
-	    # Link with parent role
+        # Link with parent role
         $roles->{$role}->{child_roles} = &share({});
-	    my $parent_role = $cfg_roles->{$role}->{parent_role};
-	    $roles->{$role}->{parent_role} = $parent_role;
-	    if ($parent_role) {
-	        $roles->{$parent_role}->{child_roles}->{$role} = 1;
-	    }
+        my $parent_role = $cfg_roles->{$role}->{parent_role};
+        $roles->{$role}->{parent_role} = $parent_role;
+        if ($parent_role) {
+            $roles->{$parent_role}->{child_roles}->{$role} = 1;
+        }
 
         # Parse IPs
         my @ips = split(/\s*\,\s*/, $cfg_roles->{$role}->{ip});
         $roles->{$role}->{ips} = &share({});
-	
+        
         foreach my $ip (@ips) {
             my $role_ip = &share({});
             $role_ip->{ip} = $ip;
@@ -310,16 +310,16 @@ sub ClearChildRoles($) {
     # And check all of them
     foreach my $child (keys(%$child_roles)) {
         my $child_ips = $roles->{$child}->{ips};
-	    my @child_hosts;
+        my @child_hosts;
 
-	    # Check all ips of child role
-	    foreach my $child_ip (keys(%$child_ips)) {
-	        # And select not null records
-	        next if ($child_ips->{$child_ip}->{assigned_to} eq '');
-	        push(@child_hosts, $child_ips->{$child_ip}->{assigned_to});
-	        $child_ips->{$child_ip}->{assigned_to} = "";
-	    }
-		
+        # Check all ips of child role
+        foreach my $child_ip (keys(%$child_ips)) {
+            # And select not null records
+            next if ($child_ips->{$child_ip}->{assigned_to} eq '');
+            push(@child_hosts, $child_ips->{$child_ip}->{assigned_to});
+            $child_ips->{$child_ip}->{assigned_to} = "";
+        }
+        
         LogNotice("Found dependent child role '$child'. Clearing it too. Affected hosts: " . join(',', @child_hosts));
         push(@affected_hosts, @child_hosts);
     }
@@ -338,7 +338,7 @@ sub ClearServerRoles($) {
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
         
-	    # Check all ips
+        # Check all ips
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
 
@@ -348,14 +348,14 @@ sub ClearServerRoles($) {
 
             my $child_hosts = ClearChildRoles($role_name);
             push(@affected_hosts, @$child_hosts);
-	    
+        
             $ip_info->{assigned_to} = "";
         }
 
         # Notify all slave hosts on master changes
         if ($role_name eq $config->{active_master_role}) {
             my $slaves = GetSlavesList();
-    	    push(@affected_hosts, @$slaves);
+            push(@affected_hosts, @$slaves);
         }
     }
 
@@ -373,8 +373,8 @@ sub GetSlavesList() {
     my $hosts = $config->{host};
     foreach my $host (keys(%$hosts)) {
         if ($hosts->{$host}->{mode} eq 'slave') {
-	        push (@slaves, $host);
-	    }
+            push (@slaves, $host);
+        }
     }
     
     return \@slaves;
@@ -430,16 +430,16 @@ sub NotifyAffectedHosts($) {
     my $child_roles = $role->{child_roles};
     foreach my $child (keys(%$child_roles)) {
         LogNotice("Found dependent child role '$child'. Notifying all affected hosts...");
-	    my $child_ips = $roles->{$child}->{ips};
+        my $child_ips = $roles->{$child}->{ips};
 
-	    # Find assigned ips
-	    foreach my $child_ip (keys(%$child_ips)) {
-	        next if ($child_ips->{$child_ip}->{assigned_to} eq '');
-		    
-	        # Notify affected host
-	        LogNotice("Notifying host $child_ips->{$child_ip}->{assigned_to} about parent state change.");
-	        SendStatusToAgent($child_ips->{$child_ip}->{assigned_to});
-	    }
+        # Find assigned ips
+        foreach my $child_ip (keys(%$child_ips)) {
+            next if ($child_ips->{$child_ip}->{assigned_to} eq '');
+            
+            # Notify affected host
+            LogNotice("Notifying host $child_ips->{$child_ip}->{assigned_to} about parent state change.");
+            SendStatusToAgent($child_ips->{$child_ip}->{assigned_to});
+        }
     }
 }
 
@@ -450,10 +450,10 @@ sub ProcessOrphanedRoles() {
     foreach my $role_name (keys(%$roles)) {
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
-
+        
         # Skip child roles with orphaned parents        
-	    next if (IsOrphanedRole($role->{parent_role}));
-	
+        next if (IsOrphanedRole($role->{parent_role}));
+        
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
             next unless ($ip_info->{assigned_to} eq "");
@@ -467,18 +467,18 @@ sub ProcessOrphanedRoles() {
             # Assign this ip to host
             $ip_info->{assigned_to} = $host;
             LogNotice("Role '$role_name($ip)' is not orphaned now. It has beed attached to '$host'.");
-	    
-	        # Send notification to all affected hosts
-	        NotifyAffectedHosts($role_name);	    
-	    
+            
+            # Send notification to all affected hosts
+            NotifyAffectedHosts($role_name);
+            
             # Notify all slave hosts on master changes
-	        if ($role_name eq $config->{active_master_role}) {
+            if ($role_name eq $config->{active_master_role}) {
                 my $slaves = GetSlavesList();
-		        foreach my $slave (@$slaves) {
+                foreach my $slave (@$slaves) {
                     # Notify affected host
-	                LogDebug("Notifying host $slave about master state change.");
-	                SendStatusToAgent($slave);
-		        }
+                    LogDebug("Notifying host $slave about master state change.");
+                    SendStatusToAgent($slave);
+                }
             }
 
             $cnt++;
@@ -528,9 +528,9 @@ sub MoveOneRoleIP($$$) {
         my $slaves = GetSlavesList();
         foreach my $slave (@$slaves) {
             # Notify affected host
-	        LogNotice("Notifying host $slave about master state change.");
-	        SendStatusToAgent($slave);
-	    }
+            LogNotice("Notifying host $slave about master state change.");
+            SendStatusToAgent($slave);
+        }
     }
 }
 
@@ -546,7 +546,7 @@ sub BalanceRoles() {
         next unless ($role->{mode} eq 'balanced');
 
         # Skip child roles with orphaned parents
-	    next if (IsOrphanedRole($role->{parent_role}));
+        next if (IsOrphanedRole($role->{parent_role}));
 
         my $hosts = FindAllEligibleHosts($role_name);
         next if (scalar(keys(%$hosts)) < 2);
@@ -610,9 +610,9 @@ sub MoveExclusiveRole($$) {
         my $slaves = GetSlavesList();
         foreach my $slave (@$slaves) {
             # Notify affected host
-	        LogNotice("Notifying host $slave about master state change.");
-	        SendStatusToAgent($slave);
-	    }
+            LogNotice("Notifying host $slave about master state change.");
+            SendStatusToAgent($slave);
+        }
     }
 }
 
@@ -640,9 +640,9 @@ sub OrphanExclusiveRole($) {
         my $slaves = GetSlavesList();
         foreach my $slave (@$slaves) {
             # Notify affected host
-	        LogNotice("Notifying host $slave about master state change.");
-	        SendStatusToAgent($slave);
-	    }
+            LogNotice("Notifying host $slave about master state change.");
+            SendStatusToAgent($slave);
+        }
     }
     
     return $old_owner;

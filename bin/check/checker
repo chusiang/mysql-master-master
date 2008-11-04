@@ -51,27 +51,27 @@ our $log_debug = ($config->{debug} =~ /^(on|yes|1)$/i);
 
 # Process loop
 while (!eof(STDIN)) {
-	# Check if it is time to die
-	if (defined($checks_to_restart) && --$checks_to_restart < 1) {
-		CheckerLog("Max checks performed, restarting...");
-		last;
-	}
+    # Check if it is time to die
+    if (defined($checks_to_restart) && --$checks_to_restart < 1) {
+        CheckerLog("Max checks performed, restarting...");
+        last;
+    }
     CheckerLogDebug("Waiting for a command...");
 
     # Get command
     chomp(my $cmd = <STDIN>);
     CheckerLogDebug("Got cmd = '$cmd'");
 
-	# Die if there are too many empty commands in a row
+    # Die if there are too many empty commands in a row
     if ($cmd eq '') {
-		if (++$empty_commands > $max_empty_commands) {
-			CheckerLog("WARNING: Too many empty commands ($empty_commands) in a row - looks like pipe is broken! Exiting!");
-			last;
-		}
-		next;
-	} else {
-		$empty_commands = 0;
-	}
+        if (++$empty_commands > $max_empty_commands) {
+            CheckerLog("WARNING: Too many empty commands ($empty_commands) in a row - looks like pipe is broken! Exiting!");
+            last;
+        }
+        next;
+    } else {
+        $empty_commands = 0;
+    }
     
     my @command = split(/\s+/, $cmd);
     if ($cmd eq 'ping') {
@@ -83,7 +83,7 @@ while (!eof(STDIN)) {
     if ($cmd ne '' && (scalar(@command) < 1 || scalar(@command) > 2)) {
         CheckerLog("Invalid command format! Command was: '$cmd'");
         print "Invalid command format. Use <command> [param]\n";
-	    next;
+        next;
     }
     
     # Exit if asked
@@ -92,7 +92,7 @@ while (!eof(STDIN)) {
     # Process command and output result
     if ($command[0] eq 'check') {
         print PerformCheck($timeout, $command[1]) . "\n";
-	    next;
+        next;
     }
 
     print "ERROR: Invalid command ($cmd)\n";
@@ -107,7 +107,7 @@ exit(0);
 sub MyExit($) {
     $res = shift;
     print "$res\n";
-	CheckerLog("EXIT: $res");
+    CheckerLog("EXIT: $res");
     exit(0);
 }
 
@@ -123,12 +123,12 @@ sub CheckerLog($) {
     my $now = strftime("%Y-%m-%d %H:%M:%S", localtime);
     
     my $cluster = $postfix;
-	$cluster ||= "_default";
-	
+    $cluster ||= "_default";
+    
     my $f = "$SELF_DIR/var/checker/$check_name$cluster.log";
 
     if (open(LOG, ">>$f")) {
-    	print LOG "[$now]: $$: $msg\n";
-    	close(LOG);
-	}
+        print LOG "[$now]: $$: $msg\n";
+        close(LOG);
+    }
 }

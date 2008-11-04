@@ -55,13 +55,13 @@ sub SyncWithMaster($) {
     if ($peer_dbh) {
         #print "Will sync with master log...\n";
         my $row = MysqlQuery($peer_dbh, "SHOW MASTER STATUS");
-	$wait_log = $row->{File};
-	$wait_pos = $row->{Position};
+        $wait_log = $row->{File};
+        $wait_pos = $row->{Position};
     } else {
         #print "Will sync with relay log...\n";
         my $row = MysqlQuery($this_dbh, "SHOW SLAVE STATUS");
-	$wait_log = $row->{Master_Log_File};
-	$wait_pos = $row->{Read_Master_Log_Pos};	
+        $wait_log = $row->{Master_Log_File};
+        $wait_pos = $row->{Read_Master_Log_Pos};
     }
     
     my $res = ExecuteQuery($this_dbh, "SELECT MASTER_POS_WAIT('$wait_log', $wait_pos)");

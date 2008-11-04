@@ -108,11 +108,11 @@ sub CreateChecksStatus() {
         $status->{$host} = &share({});
         foreach my $check (keys(%$checks)) {
             LogDebug("Trying initial check '$check' on host '$host'...");
-	    
+        
             my $res = CheckService($checkers->{$check}, $host);
-	        LogError("Eval Error: $@") if $@;
-	        LogDebug("$check_function('$host') = '$res'");
-	    
+            LogError("Eval Error: $@") if $@;
+            LogDebug("$check_function('$host') = '$res'");
+            
             $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : 0;
         }
     }
@@ -167,11 +167,11 @@ sub CheckerMain($$$) {
                 return 0;
             }
 
-	        # Ping check
+            # Ping check
             $checker = PingChecker($checker, $check_name);
             
             # Run check
-	        $res = CheckService($checker, $host);
+            $res = CheckService($checker, $host);
             LogDebug("CHECKER: $check_name: $res");
             
             # If success

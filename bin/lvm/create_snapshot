@@ -176,11 +176,11 @@ sub CreateSnapshot() {
 
     my @command = (
         $config->{bin_lvcreate}, '--snapshot', 
-	    '--size', $host->{lvm_snapshot_size}, 
-	    '--name', 'mmm_snapshot', 
-	    join('/', "/dev" , $host->{lvm_volume_group}, $host->{lvm_data_volume})
+        '--size', $host->{lvm_snapshot_size}, 
+        '--name', 'mmm_snapshot', 
+        join('/', "/dev" , $host->{lvm_volume_group}, $host->{lvm_data_volume})
     );
-	
+    
     my $lvm_res = system(@command);
     print "LVM res = '$lvm_res'\n";
     
