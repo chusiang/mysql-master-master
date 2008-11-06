@@ -194,14 +194,11 @@ sub GetServerRoles($) {
 
 #-----------------------------------------------------------------
 sub GetActiveMaster() {
-    my $role_name = $roles->{$config->{active_master_role}};
-    return '' unless $role_name;
+    my $role = $roles->{$config->{active_master_role}};
+    return '' unless $role;
 
-    my $role_ips = $role->{ips};
-        
-    foreach my $ip (keys(%$role_ips)) {
-        return $role_ips->{$ip}->{assigned_to};
-    }
+    my @all_ips = keys( %{ $role->{ips} } );
+    return $role->{ips}->{$all_ips[0]}->{assigned_to};
 }
 
 #-----------------------------------------------------------------
