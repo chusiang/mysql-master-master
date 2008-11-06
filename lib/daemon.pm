@@ -324,10 +324,7 @@ sub SendStatusToAgent($) {
         push(@roles, sprintf("%s(%s;%s)", $role->{name}, $role->{ip}, $role->{parent_host}));
     }
 
-    # Get active master role and its owner
-    my $active_master_role = $config->{active_master_role};
-    my $master_host = GetExclusiveRoleOwner($active_master_role);
-    
+    my $master_host = GetActiveMaster();
     my $res = SendAgentCommand($host_name, 'SET_STATUS', $host_name, $status->{version}, $status->{state}, join(',', @roles), $master_host);
     if (!$res) {
         LogError("Daemon: Error sending status command to $host_name.");
