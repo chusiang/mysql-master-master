@@ -1,6 +1,0 @@
-send_arp
- 
-This program sends out one ARP packet with source/target IP and Ethernet
-hardware addresses suuplied by the user.  It uses the libnet libary from
-Packet Factory (http://www.packetfactory.net/libnet/ ). It has been tested
-on Linux, FreeBSD, and on Solaris.

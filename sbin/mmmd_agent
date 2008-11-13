@@ -1,63 +1,69 @@
 #!/usr/bin/env perl
 
-# Use mandatory external modules
 use strict;
+use warnings;
+use English qw( PROGRAM_NAME );
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init($WARN);
+
 use Cwd;
 use File::Basename;
-use Data::Dumper;
-use POSIX;
-use Config;
-use Getopt::Long;
-use IO::Socket;
 use Proc::Daemon;
-use Time::HiRes;
 
 # Determine installation dir name
 our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
 # Include parts of the system
-require $SELF_DIR . '/lib/config.pm';
-require $SELF_DIR . '/lib/log.pm';
-require $SELF_DIR . '/lib/agent_commands.pm';
+require $SELF_DIR . '/lib/Common/Config.pm';
+require $SELF_DIR . '/lib/Common/PidFile.pm';
 
-#-----------------------------------------------------------------
-# Read config file
-our $config = ReadConfig("mmm_agent.conf");
+require $SELF_DIR . '/lib/Agent/Agent.pm';
 
-# We need to know how previous session has been finished
-our $unclean_start = CheckPidFile();
+# Read configuration
+our $config = new MMM::Common::Config::;
+$config->read('mmm_agent');
+$config->check('AGENT');
+
+our $agent	= new MMM::Agent::;
+$agent->from_config($config);
+
+use Data::Dumper;
+print Data::Dumper->Dump([$agent]);
+print Data::Dumper->Dump([$config]);
+	
+
+our $active_master_role	= $config->{active_master_role};
+our $cluster_interface	= $config->{host}->{ $config->{this} }->{cluster_interface};
+
+my $pidfilename = $config->{host}->{ $config->{this} }->{pid_path};
+my $pidfile = new MMM::Common::PidFile:: $pidfilename;
+
+# Check pid file
+LOGDIE	"Can't run second copy of ", $PROGRAM_NAME	if ($pidfile->is_running());
+WARN	"Unclean start - found stale pid file!"		if ($pidfile->exists());
 
 # Go to background
-Proc::Daemon::Init if ($config->{debug} =~ /^(off|no|0)$/i);
-CreatePidFile();
+Proc::Daemon::Init if (0); # TODO
+$pidfile->create();
 
 # Shutdown flag
 our $shutdown = 0;
-
-# Start time to calculate uptime
-our $start_time = time();
 
 # Catch signals
 $SIG{INT} = \&SignalHandler;
 $SIG{TERM} = \&SignalHandler;
 
-#-----------------------------------------------------------------
-# Initialize server status
-our $server_version = -1;
-our $server_state = 'UNKNOWN';
-our $server_roles = ();
-our $active_master = "";
+#my $agent = new MMM::Agent::;
 
-# Start command handler
-CommandMain();
+#$agent->main() while not $shutdown;
 
-# Delete pid file and update status file
-unlink($config->{pid_path});
+# Remove pid file
+$pidfile->remove();
 
 exit(0);
 
 #-----------------------------------------------------------------
 sub SignalHandler() {
-    LogDebug("Core: Signal received: exiting...");
+	DEBUG "Signal received: exiting...";
     $shutdown = 1;
 }
