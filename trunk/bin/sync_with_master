@@ -28,13 +28,13 @@ sub SyncWithMaster($) {
     my $host = shift;
 
     my $this = $config->{this};
-    my $peer = $config->{peer};
     
     # get self connection info
     my $host = $config->{host}->{$this}->{ip};
     my $port = $config->{host}->{$this}->{port};
     my $user = $config->{host}->{$this}->{user};
     my $pass = $config->{host}->{$this}->{password};
+    my $peer = $config->{host}->{$this}->{peer};
 
     # get peer connection info
     my $peer_host = $config->{host}->{$peer}->{ip};
