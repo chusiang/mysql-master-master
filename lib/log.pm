@@ -33,7 +33,8 @@ sub LogTrap($) {
 }
 
 #-----------------------------------------------------------------
-sub SendLogEmailNotice($$) {
+sub SendLogEmailNotice($$$) {
+    my $notify = shift;
     my $msg = shift;
     my $email = shift;
     
@@ -45,7 +46,7 @@ sub SendLogEmailNotice($$) {
         LogError("Error: Cannot open $sendmail: $!");
         return 1;
     }
-    print SENDMAIL "From: mmm_mon\@kovyrin.net\n";
+    print SENDMAIL "From: $notify->{from_name} <$notify->{from_address}>\n";
     print SENDMAIL "Subject: [$now] MMM Notification\n";
     print SENDMAIL "To: $email\n\n";
     print SENDMAIL "$now: $msg\n";
@@ -73,7 +74,16 @@ sub PrintLog {
         close(LOG);
         
         if ($log->{email}) {
-            SendLogEmailNotice($msg, $log->{email});
+            # Set the default values if not setup in the main config file
+            my $notify = {};
+            if (ref($config->{'email'}) eq 'HASH') {
+               $notify = $config->{'email'}->{'notify'};
+            }
+			else {
+               $notify->{from_name} = "MMM Control";
+               $notify->{from_address} = "mmm_control\@example.com";
+            }
+            SendLogEmailNotice($notify, $msg, $log->{email});
         }
     }
     
