@@ -1,0 +1,101 @@
+# Cluster interface
+cluster_interface eth0
+
+# Debug mode
+debug no
+
+# Paths
+bin_path /usr/local/mmm/bin
+
+# Logging setup
+log mydebug 
+    file /usr/local/mmm/var/mmm-debug.log
+    level debug
+
+log mytraps 
+    file /usr/local/mmm/var/mmm-traps.log
+    level trap
+    email root@localhost
+
+# Define roles
+active_master_role writer
+
+# MMMD command socket tcp-port
+agent_port 9989
+monitor_ip 127.0.0.1
+
+
+# Cluster hosts addresses and access params
+host db8
+    ip 192.168.1.8
+    port 3306
+    user rep_monitor
+    password RepMonitor
+    mode master
+    peer db9
+
+host db9
+    ip 192.168.1.9
+    port 3306
+    user rep_monitor
+    password RepMonitor
+    mode master
+    peer db8
+
+host db10
+    ip 192.168.1.10
+    port 3306
+    user rep_monitor
+    password RepMonitor
+    mode slave
+
+# Define roles that are assigned to the above hosts
+# Mysql Reader role
+role reader
+    mode balanced
+    servers db8, db9, db10
+    ip 172.16.1.210, 172.16.1.211, 172.16.1.212
+
+# Mysql Writer role
+role writer
+    mode exclusive
+    servers db8, db9
+    ip 172.16.1.200
+
+# Replication credentials used by slaves to connect to the master
+replication_user replication
+replication_password slave
+
+# Checks parameters
+
+# Ping checker
+check ping
+    check_period 1
+    trap_period 5
+    timeout 2
+
+# Mysql checker 
+# (restarts after 10000 checks to prevent memory leaks)
+check mysql
+    check_period 1
+    trap_period  2
+    timeout 2
+    restart_after 10000
+
+# Mysql replication backlog checker 
+# (restarts after 10000 checks to prevent memory leaks)
+check rep_backlog
+    check_period 5
+    trap_period 10
+    max_backlog 60
+    timeout 2
+    restart_after 10000
+
+# Mysql replication threads checker 
+# (restarts after 10000 checks to prevent memory leaks)
+check rep_threads
+    check_period 1
+    trap_period 5
+    timeout 2
+    restart_after 10000
+

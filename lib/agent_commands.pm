@@ -125,7 +125,7 @@ sub SetStatusCommand($) {
         LogWarn("SetStatus: Version in command ($version) is older, than mine ($server_version)!");
     }
     
-    if ($config->{mode} eq 'slave' && $active_master ne $new_master && $new_state eq 'ONLINE' && $new_master ne "") {
+    if ($config->{host}->{$host_name}->{mode} eq 'slave' && $active_master ne $new_master && $new_state eq 'ONLINE' && $new_master ne "") {
         LogNotice("Changing active master: $new_master");
         $res = ExecuteBin("agent/set_active_master", "'$new_master'");
         LogDebug("Result: $res");

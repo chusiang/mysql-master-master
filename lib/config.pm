@@ -6,6 +6,12 @@ my $is_threaded = defined(&share);
 #-----------------------------------------------------------------
 sub ReadConfig($) {
     my $conf_file = shift;
+    my $conf_data = ReadConfigFile($conf_file);
+    return ProcessConfig($conf_data);
+}
+
+sub ReadConfigFile {
+    my $conf_file = shift;
 
     # Use project's config directory if config file is not absolute
     $conf_file = $SELF_DIR . "/etc/" . $conf_file unless ($conf_file =~ /^\/.*/);
@@ -14,7 +20,15 @@ sub ReadConfig($) {
     #print "Reading config file ($conf_file)...\n";
     
     open(CONF, "<$conf_file") || die("Can't read config file ($conf_file)\n");
+    my @confData = <CONF>;
+    close(CONF);
+  
+    return \@confData;
+}
     
+sub ProcessConfig($) {
+    my $configLines = shift;
+
     # configuration values
     my $config = ($is_threaded)? &share({}) : {};
     
@@ -22,7 +36,7 @@ sub ReadConfig($) {
     my $section_name = "";
     my $section_type = "";
     
-    while (<CONF>) {
+    while ($_ = shift @{$configLines}) {
         chomp;
         # strip whitespace from end of line
         s/\s*$//g;
@@ -35,10 +49,21 @@ sub ReadConfig($) {
         if (/^(\S+)\s*(\S+)\s*$/) {
             $section_type = $1;
             $section_name = $2;
+
+            #If there is an "include" line in the config file, prepend the
+            #lines from that file to our list of lines to process
+            if ($section_type eq "include") {
+              unshift(@$configLines, @{ReadConfigFile($section_name)});
+              next;
+            }
+
             unless (ref($config->{$section_type}) eq 'HASH') {
                 $config->{$section_type} = $section_name;
             } else {
-                $config->{$section_type}->{$section_name} = ($is_threaded)? &share({}) : {};
+                #This may have been already defined in the 'common' file, so don't overwrite it
+                unless (ref($config->{$section_type}->{$section_name}) eq 'HASH') { 
+                  $config->{$section_type}->{$section_name} = ($is_threaded)? &share({}) : {};
+                }
             }
 
             next;
@@ -54,7 +79,7 @@ sub ReadConfig($) {
         }
         
         # unresolved config line
-        die("Invalid config line #$line!\n");
+        die("Invalid config line $_\n");
     }
     
     close(CONF);
