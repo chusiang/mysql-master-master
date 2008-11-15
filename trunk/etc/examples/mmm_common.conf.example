@@ -17,6 +17,11 @@ log mytraps
     level trap
     email root@localhost
 
+# Email notification settings
+email notify
+    from_address mmm_control@example.com
+    from_name MMM Control
+
 # Define roles
 active_master_role writer
 
