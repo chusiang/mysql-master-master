@@ -30,7 +30,7 @@ sub SpawnChecker($) {
     LogDebug("Spawning checker '$name'...");
 
     my $cluster = ($cluster_name ? '@' . $cluster_name : '');
-    my $pid = open2($reader, $writer, "$SELF_DIR/bin/check/checker $cluster '$name'");
+    my $pid = open2($reader, $writer, "$SELF_DIR/bin/check/checker $cluster $name");
     if (!$pid) {
         LogError("Can't spawn checker! Error: $!");
         exit(1);
