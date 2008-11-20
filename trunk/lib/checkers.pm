@@ -57,8 +57,7 @@ sub PingChecker($$) {
     my $send_res = print ($writer "ping\n");
     chomp(my $recv_res = <$reader>);
     
-    my $check_pid = waitpid($checker->{pid}, WNOHANG); # To prevent collecting children as zombies
-    if (!$send_res || !($recv_res =~ /^OK/) || $check_pid == -1) {
+    if (!$send_res || !($recv_res =~ /^OK/)) {
         LogWarn("Checker '$name' is dead!");
         $checker = SpawnChecker($name);
     }
@@ -111,7 +110,7 @@ sub CreateChecksStatus() {
         
             my $res = CheckService($checkers->{$check}, $host);
             LogError("Eval Error: $@") if $@;
-            LogDebug("$check_function('$host') = '$res'");
+            LogDebug("$check('$host') = '$res'");
             
             $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : 0;
         }
