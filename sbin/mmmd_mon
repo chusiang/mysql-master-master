@@ -79,6 +79,7 @@ our $start_time : shared = time();
 $SIG{INT} = \&SignalHandler;
 $SIG{TERM} = \&SignalHandler;
 $SIG{PIPE} = 'IGNORE';
+$SIG{CHLD} = \&REAPER;
 
 #-----------------------------------------------------------------
 # Creating message queues
@@ -109,3 +110,12 @@ sub SignalHandler() {
     LogDebug("Core: Signal received: exiting...");
     $shutdown = 1;
 }
+
+sub REAPER {
+    local $!;   # don't let waitpid() overwrite current error
+    while ((my $pid = waitpid(-1, WNOHANG)) > 0 && WIFEXITED($?)) {
+        LogDebug("Core: reaped child $pid" . ($? ? " with exit $?" : ''));
+    }
+    $SIG{CHLD} = \&REAPER;  # loathe sysV
+}
+
