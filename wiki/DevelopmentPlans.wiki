@@ -1,0 +1,21 @@
+#summary Plans for a major new version
+
+= Introduction =
+
+MMM has a lot of shortcomings and even a few bugs.  Let's get them in public and discuss possible solutions.
+
+
+= Details =
+
+  * It doesn't forcibly terminate (kill, iptables?) connections when switching masters
+  * no documentation on what it does or is supposed to do
+  * if it switches to a delayed slave, does it wait for the slave to catch up?
+  * it's unpredictable how it reacts to a replication lag -- can cause a dead cluster
+  * if mmm_mon can't connect to a server for some completely external reason, it resets everything and you have a dead cluster
+  * it causes a dead cluster when it doesn't know what to do, instead of doing nothing
+  * move/offline/switch waits forever on a master for a binlog to advance that will never advance
+  * starting it on a working cluster is risky; it interacts badly with saved state in its var/ files, or resets a working cluster (it should detect state and adjust its var/ file to match)
+  * it's focused on data consistency, not HA
+  * there's no way to make it run in passive mode (for testing etc)
+  * another issue with MMM is - if you restart mysql on standby master, w/o doing set_offline, then the writer role will be switched to it because the active master will have replication failure with standby master
+  * Flapping.  Ability to make it not do more than N switches (default 1?) in a time interval, say 1 per day, "not more than N before a human runs mmm_control set_available failed_server". That way there can only be one failover
