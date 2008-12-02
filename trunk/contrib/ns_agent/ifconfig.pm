@@ -136,7 +136,12 @@ sub SendNameserverCommand($) {
 
 	$cmd = shift;
 	
-	require 'config.pm';
+	# Determine installation dir name
+        our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
+
+        # Include parts of the system
+        require $SELF_DIR . '/lib/config.pm';
+
 	$config = ReadConfig('mmm_agent.conf');	
 
 	my $cfg_nameservers = $config->{nameserver};
