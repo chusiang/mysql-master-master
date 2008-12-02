@@ -16,36 +16,55 @@ a nameserver in the network.
 
 To use this:
 
-	1. Run ns_agent.php (accompanied by mmm_ns_agent.conf) on the nameserver
-	   machine.
+	1. On nameserver machine:
+	   
+	   1.1 Edit mmm_ns_agent.conf to your liking (port and name of zone file).
+	   
+	   1.2 Configure the nameserver to answer queries for mydomain.com, have very low TTL,
+    	   and make sure the zone file name matches the one in mmm_ns_agent.conf. 
+	   
+	   1.3 Run ns_agent.php (for example, `php ns_agent.php`).
+	       You should probably write a init.d/ script to run it for you, 
+	       maybe in a screen session.
 	
-	2. Add the following section to mmm_agent.conf on all database nodes:
+	2. On the database nodes:
+	   
+	   2.1 Add the following section to mmm_agent.conf on all database nodes:
 
-		nameserver <<nameserver_name>>
+		   nameserver <<nameserver_name>>
 		        ip <<nameserver ip address>>
 		        port <<ns_agent port>>
 
-	3. Replace /usr/local/mmm/lib/ifconfig.pm with the one provided with this
-	   contribution.
+	   2.2 Replace /usr/local/mmm/lib/ifconfig.pm with the one provided with this
+	       contribution.
 
-	4. On the mmm monitor daemon config (mmm_mon.conf), replace any occurence of
-	   the floating IP address with the FQDN of the relevant host. For example:
+	3. On the monitor node:
+	   
+	   3.1 In the mmm monitor daemon config (mmm_mon.conf), replace any occurence of
+	       the floating IP address with the FQDN of the relevant host. For example:
 
-	   Replace:
-		role writer
-		    mode exclusive
-		    servers ec2_db1
-		    ip 192.168.100.101
-	   With:
-		role writer
-		    mode exclusive
-		    servers ec2_db1
-	   	    ip writer.mydomain.com
+	       Replace:
+		       role writer
+		            mode exclusive
+		            servers ec2_db1
+		            ip 192.168.100.101
+	        With:
+		       role writer
+		            mode exclusive
+		            servers ec2_db1
+	   	            ip writer.mydomain.com
 
-	5. Configure the nameserver to answer queries for mydomain.com, have very low TTL,
-    	   and make sure the zone file name matches the one in mmm_ns_agent.conf.
-
-	6. Set all the machines resolver to your nameserver.
+	4. On your application machine:
+	   
+	   4.1 Set database host references from IP addresses to hostnames.
+	       For example (php):
+	       define('DB_HOST_WRITER','writer.mydomain.com');
+	       define('DB_HOST_READERS',array('reader1.mydomain.com','reader2.mydomain.com');
+	
+	5. On all machines (application, monitor, db nodes):
+	  
+	   5.1 Set resolver to your nameserver.
 
 May we never have failing production clusters!
+For feedback and questions: oren@stanzapub.com
 

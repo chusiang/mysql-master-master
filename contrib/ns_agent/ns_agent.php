@@ -40,10 +40,10 @@ if ($sock)
 			switch ($cmd[0])
 			{
 				case 'ADDIP':
-					AddHostToZoneFile($cmd[1],$cmd[2]);
+					AddIp($cmd[1],$cmd[2]);
 					break;
 				case 'CLEARIP':
-					RemoveHostFromZoneFile($cmd[1],$cmd[2]);
+					ClearIp($cmd[1],$cmd[2]);
 					break;
 				default:
 					print("ERROR: Command not recognized \n");
@@ -61,37 +61,72 @@ else
 	print("ERROR: Failed initializing daemon\n");
 }
 
+function AddIp($hostname,$ip)
+{
+	RemoveHostFromZoneFile($hostname);
+	AddHostAndIpToZoneFile($hostname,$ip);
+	ReloadNameserver();
+}
 
-function AddHostToZoneFile($hostname,$ip)
+function ClearIp($hostname,$ip)
+{
+	RemoveHostFromZoneFile($hostname);
+	ReloadNameserver();
+}
+
+function AddHostAndIpToZoneFile($hostname,$ip)
 {
 	// is it safe to assume we can just echo the new host to the zone file?
 	// for now let's say yes.
 
 	global $zoneFile;
 
-	if (!SearchHostInZoneFile($hostname,$ip))
-	{	
-		$hostPart = GetHostPart($hostname);
-
-		print("Executing: echo '$hostPart IN A $ip' >> $zoneFile \n");
-		$execRet = shell_exec("echo '$hostPart IN A $ip' >> $zoneFile ");
-		$rndcRet = shell_exec("rndc reload");
-	}
+	$hostPart = GetHostPart($hostname);
+	
+	print("Executing: echo '$hostPart IN A $ip' >> $zoneFile \n");
+	$execRet = shell_exec("echo '$hostPart IN A $ip\n' >> $zoneFile ");
+	
 }
-function RemoveHostFromZoneFile($hostname,$ip)
+
+function RemoveHostFromZoneFile($hostname)
 {
 	global $zoneFile;
 	
-	if (SearchHostInZoneFile($hostname,$ip))
-        {
-                $hostPart = GetHostPart($hostname);
+	$hostPart = GetHostPart($hostname);
 
-                print("Executing: sed -i.last '/$hostPart.*$ip/d' $zoneFile \n");
-                $execRet = shell_exec("sed -i.last '/$hostPart.*$ip/d' $zoneFile");
-				$rndcRet = shell_exec("rndc reload");
-        }
+	print("Executing: sed -i.last '/$hostPart.*/d' $zoneFile \n");
+    $execRet = shell_exec("sed -i.last '/$hostPart.*/d' $zoneFile");
+	
 }
-function SearchHostInZoneFile($hostname,$ip)
+
+function ReloadNameserver()
+{
+	// read fresh zone file contents
+	global $zoneFile;
+	$zoneFileContents = file_get_contents($zoneFile);
+	
+	// replace serial
+	$newSerial = date("ymHis");
+	print("Updating $zoneFile with new serial:" . $newSerial . "\n");
+	$zoneFileContents = preg_replace("/(\([\s\n]+)(\d+)([\s\n]+)/",'${1}' . $newSerial . '${3}',$zoneFileContents);
+	
+	// take the opportunity to remove empty lines
+	$zoneFileContents = preg_replace("/\n+/","\n",$zoneFileContents);
+	
+	// write the new zoneFile
+	$putRet = file_put_contents($zoneFile,$zoneFileContents);
+	
+	// and reload named
+	$rndcRet = shell_exec("rndc reload");
+}
+
+function GetHostPart($hostname)
+{
+	return preg_replace("/^([^\.]+).*/i","$1",$hostname);
+}
+
+// deprecated
+function SearchHostAndIpInZoneFile($hostname,$ip)
 {
 	// read fresh zone file contents
 	global $zoneFile;
@@ -106,9 +141,4 @@ function SearchHostInZoneFile($hostname,$ip)
 	echo "\n";
 	return $presence;
 }
-function GetHostPart($hostname)
-{
-	return preg_replace("/^([^\.]+).*/i","$1",$hostname);
-}
 
-?>
