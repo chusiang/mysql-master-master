@@ -521,7 +521,7 @@ sub ProcessOrphanedRoles() {
             
             # Assign this ip to host
             $ip_info->{assigned_to} = $host;
-            LogNotice("Role '$role_name($ip)' is not orphaned now. It has beed attached to '$host'.");
+            LogNotice("Role '$role_name($ip)' is not orphaned now. It has been attached to '$host'.");
             
             # Send notification to all affected hosts
             NotifyAffectedHosts($role_name);

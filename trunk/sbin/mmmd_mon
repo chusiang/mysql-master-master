@@ -57,6 +57,9 @@ our $unclean_start : shared = CheckPidFile();
 # Roles list
 our $roles : shared = CreateRolesList();
 
+# Catch SIGCHLD
+$SIG{CHLD} = \&REAPER;
+
 # Checks status data
 our $checks_status : shared = CreateChecksStatus();
 
@@ -79,7 +82,10 @@ our $start_time : shared = time();
 $SIG{INT} = \&SignalHandler;
 $SIG{TERM} = \&SignalHandler;
 $SIG{PIPE} = 'IGNORE';
-$SIG{CHLD} = \&REAPER;
+
+# XXX ugly, try to collect all childs before spawning threads
+# see: http://rt.perl.org/rt3/Public/Bug/Display.html?id=60724
+sleep(3);
 
 #-----------------------------------------------------------------
 # Creating message queues
