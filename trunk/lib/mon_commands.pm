@@ -192,7 +192,7 @@ sub MoveRoleCommand($) {
     }
 
     if (!defined($roles->{$role})) {
-        return "ERROR: Unknown role name ($host)! Valid roles are: " . join(', ', keys(%$roles));
+        return "ERROR: Unknown role name ($role)! Valid roles are: " . join(', ', keys(%$roles));
     }
 
     if ($roles->{$role}->{mode} ne 'exclusive') {
