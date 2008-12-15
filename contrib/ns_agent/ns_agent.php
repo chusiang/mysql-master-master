@@ -50,6 +50,8 @@ if ($sock)
 			}
 			// close socket we're done processing
 			socket_close($new_socket);
+			// and exit so child terminates
+			exit(0);
 		}
 	}
 	// close master
