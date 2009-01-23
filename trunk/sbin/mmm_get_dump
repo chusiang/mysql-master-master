@@ -140,7 +140,7 @@ sub SaveCopyMethod() {
     print F $copy_method;
     close(F);
     
-    return "OK: Sopy method saved";
+    return "OK: Copy method saved";
 }
 
 
@@ -157,8 +157,8 @@ sub CheckDestinationDirectory() {
     
     # Check dir
     system("mkdir -p $dir");
-    unless (-d $dir && -x $dir && -r $dir && -w $dir) {
-        return "ERROR: Destination dir '$dir' has invalid permissions (show be readable/writable)!";
+    unless (-d $dir && -x _ && -r _ && -w _) {
+        return "ERROR: Destination dir '$dir' has invalid permissions (should be readable/writable/executable)!";
     }
     
     #FIXME: need to check free space, etc here
@@ -175,7 +175,7 @@ sub CheckRemoteSshConnection($) {
     my $ssh_host = $host->{ssh_user} . '@' . $host->{ip};
     my $check_cmd = "ssh $ssh_host date";
     LogNotice("Verifying ssh connection to remote host '$ssh_host' (command: $check_cmd)...");
-    $res = system($check_cmd);
+    my $res = system($check_cmd);
     if ($res) {
         return "Can't execute remote commands on host $host_name($ssh_host): $!\n";
     }
@@ -193,7 +193,7 @@ sub CreateRemoteSnapshot($) {
     
     # Create and mount snapshot on remote host
     LogDebug("Executing create_snapshot on remote server '$host_name'...");
-    chomp($res = `ssh "$ssh_host" "$mmm_dir/bin/lvm/create_snapshot"`);
+    chomp(my $res = `ssh "$ssh_host" "$mmm_dir/bin/lvm/create_snapshot"`);
     print "$res\n";
     my @res_lines = split(/\n/, $res);
     my $last_line = pop(@res_lines);

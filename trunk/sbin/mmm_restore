@@ -223,7 +223,7 @@ sub LoadStatusInfo($) {
 
     my $status_file = $backup_dir . "/_mmm/status.txt";
     unless (-f $status_file && -r $status_file) {
-        return "ERROR: Status file ($status_file) does not exists or is not readable!";
+        return "ERROR: Status file ($status_file) does not exist or is not readable!";
     }
     
     my $status_data = `cat $status_file`;

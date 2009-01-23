@@ -67,8 +67,8 @@ sub CreateLvmSnapshot() {
     }
 
     # Create and mount snapshot
-    my $snapshot_res = CreateSnapshot();
-    unless ($snapshot_res =~ /^OK/) {
+    $res = CreateSnapshot();
+    unless ($res =~ /^OK/) {
         UnlockTables($dbh);
         return "ERROR: Can't create or mount snapshot: $res";
     }
