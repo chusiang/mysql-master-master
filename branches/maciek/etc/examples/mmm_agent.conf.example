@@ -1,0 +1,27 @@
+#
+# Master-Master Manager config (agent)
+#
+
+include mmm_common.conf
+
+# Paths
+pid_path /usr/local/mmm/var/mmmd_agent.pid
+
+# MMMD command socket tcp-port and ip
+bind_port 9989
+
+# Define current server id
+this db10
+
+# Cluster hosts addresses and access params
+host db8
+    user rep_agent
+    password RepAgent
+
+host db9
+    user rep_agent
+    password RepAgent
+
+host db10
+    user rep_agent
+    password RepAgent

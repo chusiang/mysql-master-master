@@ -1,0 +1,13 @@
+#
+# Master-Master Manager config (monitor)
+#
+
+include mmm_common.conf
+
+# Paths
+pid_path /usr/local/mmm/var/mmmd.pid
+status_path /usr/local/mmm/var/mmmd.status
+
+# MMMD command socket tcp-port
+bind_port 9988
+
