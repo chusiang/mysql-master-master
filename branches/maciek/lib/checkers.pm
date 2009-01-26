@@ -96,6 +96,8 @@ sub CheckService($$) {
 sub CreateChecksStatus() {
     my $status = &share({});
 
+    my $active_master_name = GetActiveMaster();
+
     # Shortcuts
     my $checks = $config->{check};
     my $hosts = $config->{host};
@@ -112,7 +114,7 @@ sub CreateChecksStatus() {
             LogError("Eval Error: $@") if $@;
             LogDebug("$check('$host') = '$res'");
             
-            $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : 0;
+            $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : ($res =~ /^UNKNOWN/) ? ($host eq $active_master_name ? -1 : 0) : 0;
         }
     }
     
@@ -176,9 +178,18 @@ sub CheckerMain($$$) {
             # If success
             if ($res =~ /^OK/) {
                 $failures->{$host} = 0;
-                if (!$checks_status->{$host}->{$check_name}) {
+                if ($checks_status->{$host}->{$check_name} <= 0) {
                     LogTrap("Check: CHECK_OK('$host', '$check_name')");
                     $command_queue->enqueue(CreateCommand('CHECK_OK', $host, $check_name));
+                }
+                next;
+            }
+
+            # If unknown let's keep the status quo
+            if ($res =~ /^UNKNOWN/) {
+                if ($checks_status->{$host}->{$check_name} > 0) {
+                    LogTrap("Check: CHECK_UNKNOWN('$host', '$check_name')");
+                    $command_queue->enqueue(CreateCommand('CHECK_UNKNOWN', $host, $check_name));
                 }
                 next;
             }

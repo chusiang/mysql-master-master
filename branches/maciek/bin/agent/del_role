@@ -50,8 +50,74 @@ sub DelRole($$$) {
     if ($role eq 'writer') {
         ClearIP($ip);
         DenyWrite();
+        StopSQL();
         return "OK: Role 'writer' deleted!"
     }
 
     return "ERROR: Unknown role '$role'!";
 }
+
+sub StopSQL() {
+    my $this = $config->{this};
+    
+    # get self connection info
+    my $host = $config->{host}->{$this}->{ip};
+    my $port = $config->{host}->{$this}->{port};
+    my $user = $config->{host}->{$this}->{user};
+    my $pass = $config->{host}->{$this}->{password};
+
+    # connect to servers (this)
+    my $this_dbh = MysqlConnect($host, $port, $user, $pass);
+    return "ERROR: Can't connect to MySQL (host = $host:$port, user = $user)!"  if (!$this_dbh);
+
+    # Get slave info
+    my @processlist = MysqlQuery($this_dbh, "SHOW PROCESSLIST");
+    return "ERROR: SQL Query Error: " . $this_dbh->errstr unless(@processlist);
+
+    for (my $i=0; $i<=$#processlist; $i++) {
+        next if $processlist[$i]->{User} eq 'system user' or
+                $processlist[$i]->{Command} eq 'Binlog Dump' or
+                $processlist[$i]->{Info} eq 'SHOW PROCESSLIST';
+        ExecuteQuery($this_dbh, "KILL " . $processlist[$i]->{Id});
+    }
+
+    return "OK";
+}
+
+#-----------------------------------------------------------------
+sub MysqlConnect($$$$) {
+    my ($host, $port, $user, $pass) = @_;
+    
+    my $dsn = "DBI:mysql:host=$host;port=$port";
+    return DBI->connect($dsn, $user, $pass, { PrintError => 0 });
+}
+
+#-----------------------------------------------------------------
+sub MysqlQuery($$) {
+    my ($dbh, $query) = @_;
+    my @rows;
+
+    LogDebug("MYSQL QUERY: $query");
+
+    my $sth = $dbh->prepare($query);
+    my $res = $sth->execute;
+    return undef unless($res);
+
+    while (my $row = $sth->fetchrow_hashref) {
+        $rows[++$#rows] = $row;
+    }
+    $sth->finish;
+
+    return @rows;
+}
+
+#-----------------------------------------------------------------
+sub ExecuteQuery($$) {
+    my ($dbh, $query) = @_;
+
+    LogDebug("MYSQL EXEC: $query");
+
+    my $sth = $dbh->prepare($query);
+    return $sth->execute;
+}
+

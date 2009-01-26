@@ -5,6 +5,35 @@ sub CommandMain() {
     # shortcut
     my $this = $config->{this};
 
+    my $new_master = '';
+    my $new_roles_str;
+
+    LogNotice('Scanning network interfaces for the existing roles...');
+    my $ips= GetMyIPs();
+    my $cfg_roles = $config->{role};
+    foreach my $role (sort(keys(%$cfg_roles))) {
+        my $my_roles = ();
+        foreach $ip (@$ips) {
+            next unless $cfg_roles->{$role}->{ip} =~ /[^0-9.]?$ip[^0-9.]?/;
+            push(@{$my_roles->{$role}}, $ip);
+        }
+        if ($cfg_roles->{$role}->{mode} eq 'exclusive') {
+            if ($#{$my_roles->{$role}} >= 0) {
+                ExecuteBin("mysql_allow_write", "");
+            } else {
+                ExecuteBin("mysql_deny_write", "");
+            }
+        }
+        $new_roles_str .= $role . '(' . join(';', @{$my_roles->{$role}}) . ';),' if $#{$my_roles->{$role}} >= 0;
+    }
+
+    if ($new_roles_str) {
+        chop($new_roles_str);
+        LogNotice('Restoring the following roles: ' . $new_roles_str);
+        my %cmd = ('params' => [$this, 0, 'ONLINE', $new_roles_str, $new_master]);
+        SetStatusCommand(\%cmd);
+    }
+
     # Create listening socket for commands receiving
     my $sock = new IO::Socket::INET (
         LocalHost => $config->{host}->{$this}->{ip}, 
@@ -19,6 +48,7 @@ sub CommandMain() {
     
     while (!$shutdown) {
         LogDebug("Listener: Waiting for connection...");
+
         my $new_sock = $sock->accept();
         next unless ($new_sock);
         
