@@ -52,6 +52,7 @@ $commands_map->{show} = \&ShowCommand;
 $commands_map->{set_online} = \&SetOnlineCommand;
 $commands_map->{set_offline} = \&SetOfflineCommand;
 $commands_map->{move_role} = \&MoveRoleCommand;
+$commands_map->{failover_method} = \&SetFailoverMethod;
 
 # Check params
 if (scalar(@ARGV) < 1) {

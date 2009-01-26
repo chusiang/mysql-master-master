@@ -25,6 +25,10 @@ sub PerformCheck($$) {
         
         unless ($dbh) {
             alarm(0);
+            # We don't want to trigger any action because of a simple 'too many connections' error
+            if (DBI::err == 1040) {
+                return "UNKNOWN: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr;
+            }
             return "ERROR: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr;
         }
     

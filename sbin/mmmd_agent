@@ -19,6 +19,7 @@ our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/agent_commands.pm';
+require $SELF_DIR . '/lib/ifconfig.pm';
 
 #-----------------------------------------------------------------
 # Read config file

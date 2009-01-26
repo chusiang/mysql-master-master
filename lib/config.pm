@@ -267,6 +267,24 @@ sub LoadServersStatus() {
 
 
 #-----------------------------------------------------------------
+sub CreateFailoverMethod() {
+    my $method;
+
+    if (exists $config->{failover_method})
+    {
+        $method = $config->{failover_method};
+        if ($method =~ /^(auto|manual|wait)$/) {
+            $method =~ s/auto/wait/;
+            return $method;
+        }
+        die("Configuration error! You should specify one of 'auto', 'wait' or 'manual' for failover_method.");
+    }
+
+    # Default value if none specified
+    return 'auto';
+}
+
+#-----------------------------------------------------------------
 sub CreateServersStatus() {
     my $saved_status = LoadServersStatus();
     
@@ -283,6 +301,7 @@ sub CreateServersStatus() {
         
         if ($saved_status->{$host}) {
             $servers_status->{$host}->{state} = $saved_status->{$host}->{state};
+            $servers_status->{$host}->{state_change} = time();
             $servers_status->{$host}->{version} = $saved_status->{$host}->{version};
             my $saved_roles = $saved_status->{$host}->{roles};
             foreach my $role (@$saved_roles) {
@@ -301,6 +320,7 @@ sub CreateServersStatus() {
                    if ($remote_state ne "UNKNOWN") {
                         LogTrap("Daemon: Restored state $remote_state and roles from agent on host $host");
                         $servers_status->{$host}->{state} = $remote_state;
+                        $servers_status->{$host}->{state_change} = time();
                         $servers_status->{$host}->{version} = 0; # FIXME
                         # TODO maybe we should prevent a role _change_ of the "active_master"-role?
                         my @remote_roles = split(',', $remote_roles_str);
@@ -309,19 +329,24 @@ sub CreateServersStatus() {
                         }
                     }
                     else {
-                        LogTrap("Daemon: No saved state and agent on host $host reportet state UNKNOWN - setting state to HARD_OFFLINE");
-                        $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                        LogTrap("Daemon: No saved state and agent on host $host reportet state UNKNOWN - setting state to PENDING");
+                        $servers_status->{$host}->{state} = 'PENDING';
+                        $servers_status->{$host}->{state_change} = time();
                         $servers_status->{$host}->{version} = 0;
                     }
                 }
                 else {
-                    LogTrap("Daemon: No saved state and unreachable agent on host $host - setting state to HARD_OFFLINE");
-                    $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                    # XXX
+                    LogTrap("Daemon: No saved state and unreachable agent on host $host - setting state to PENDING");
+                    $servers_status->{$host}->{state} = 'PENDING';
+                    $servers_status->{$host}->{state_change} = time();
                     $servers_status->{$host}->{version} = 0;
                 }
             } else {
-                LogTrap("Daemon: No saved state for unreachable host $host - setting state to HARD_OFFLINE");
-                $servers_status->{$host}->{state} = 'HARD_OFFLINE';
+                # XXX
+                LogTrap("Daemon: No saved state for unreachable host $host - setting state to PENDING");
+                $servers_status->{$host}->{state} = 'PENDING';
+                $servers_status->{$host}->{state_change} = time();
                 $servers_status->{$host}->{version} = 0;
             }
         }
@@ -443,6 +468,8 @@ sub CountHostRoles($) {
     foreach my $role_name (keys(%$roles)) {
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
+
+        next if $role->{mode} eq 'exclusive';
         
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};
@@ -704,6 +731,26 @@ sub OrphanExclusiveRole($) {
     }
     
     return $old_owner;
+}
+
+
+#-----------------------------------------------------------------
+sub OrphanBalancedRoles($) {
+    my $host = shift;
+
+    foreach my $role_name (keys(%$roles)) {
+        my $role = $roles->{$role_name};
+        my $role_ips = $role->{ips};
+        
+        next unless ($role->{mode} eq 'balanced');
+    
+        foreach $ip (keys(%$role_ips)) {
+            next unless $role_ips->{$ip}->{assigned_to} eq $host;
+ 
+            $role_ips->{$ip}->{assigned_to} = "";
+            LogDebug("OrphanBalancedRole: role $role_name, ip $ip, old owner $host");
+        }
+    }
 }
 
 #-----------------------------------------------------------------

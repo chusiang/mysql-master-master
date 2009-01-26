@@ -123,4 +123,21 @@ sub SendArpNotification($$) {
     }
 }
 
+#-----------------------------------------------------------------
+sub GetMyIPs() {
+    my @ips;
+
+    open(IP, '/sbin/ip ad sho|');
+    while(<IP>) {
+        last if /^[0-9]+: $config->{cluster_interface}:/;
+    }
+    while(<IP>) {
+        last if /^[0-9]+:/;
+        next if not /inet ([0-9.]+)\//;
+        push(@ips, $1);
+    }
+    close(IP);
+    return \@ips;
+}
+
 1;
