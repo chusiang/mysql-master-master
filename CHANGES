@@ -1,0 +1,30 @@
+2008-12-23
+
+Project sponsored by 37signals, LLC (http://www.37signals.com/)
+
+•       failover methods
+        o       auto - fully automated cluster management
+        o       manual - writer roles are only maintained manually
+        o       wait – works like 'manual', but only until both master nodes are ONLINE or one master node is ONLINE and specified wait time has passed, then it switches to 'auto'
+
+•       new config options
+        o       failover_method [auto|manual|wait]
+                Sets the default failover method on startup as described above; the recommended modes are ‘wait’ or ‘manual’
+        o       wait_for_other_master <secs>
+                The delay time used when in ‘wait’ failover. When only single master node becomes ONLINE, wait only that long for the other to appear before switching to ‘auto’; 0 means disabled
+        o       auto_set_online <secs>
+                Force the switch from AWAITING_RECOVERY to ONLINE after so many seconds; 0 means disabled
+
+•       new mmm_control arguments
+        o       failover_method [auto|manual|wait]
+                Switch the running cluster to use the specified failover method.
+
+•       new node states
+        o       PENDING – when a node state is unknown to the monitor, PENDING is used to assume nothing
+
+•       major changes in behavior from the original MMM
+        o       on mmmd_mon startup, if no saved state is available and there is no connectivity with agents set PENDING state for nodes rather than HARD_OFFLINE; PENDING can only change when node’s agent and MySQL become available
+        o       on exlusive (writer) role change, kill all user threads on the old active master to prevent further writes
+        o       on mmmd_agent startup, read local server’s IP address table and discover own roles
+        o       on replication error, when it happens on the active master, ignore the error and allow the node to retain its roles
+        o       on certain MySQL errors (e.g. too many connections), when they happen on the active master, ignore them and allow the node to retain its roles
