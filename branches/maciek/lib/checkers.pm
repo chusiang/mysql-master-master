@@ -188,7 +188,7 @@ sub CheckerMain($$$) {
             # If unknown let's keep the status quo
             if ($res =~ /^UNKNOWN/) {
                 if ($checks_status->{$host}->{$check_name} > 0) {
-                    LogTrap("Check: CHECK_UNKNOWN('$host', '$check_name')");
+                    LogTrap("Check: CHECK_UNKNOWN('$host', '$check_name')  Returned message: $res");
                     $command_queue->enqueue(CreateCommand('CHECK_UNKNOWN', $host, $check_name));
                 }
                 next;
@@ -202,7 +202,7 @@ sub CheckerMain($$$) {
                 my $failure_age = time() - $failures->{$host};
                 
                 if ($failure_age >= $max_failures && $checks_status->{$host}->{$check_name}) {
-                    LogTrap("Check: CHECK_FAIL('$host', '$check_name')");
+                    LogTrap("Check: CHECK_FAIL('$host', '$check_name')  Returned message: $res");
                     $command_queue->enqueue(CreateCommand('CHECK_FAIL', $host, $check_name));
                 }
                 next;
