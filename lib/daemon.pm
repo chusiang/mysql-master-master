@@ -101,14 +101,14 @@ sub ProcessDaemonCommand($) {
         return 1;
     }
 
-    if ($command eq 'CHECK_UNKNOWN' && $params->[0] eq $active_master_name) {
+    if ($command eq 'CHECK_UNKNOWN') {
         my $host = $params->[0];
         my $check = $params->[1];
         $checks_status->{$host}->{$check} = -1;
         return 1;
     }
 
-    if ($command eq 'CHECK_FAIL' || $command eq 'CHECK_UNKNOWN') {
+    if ($command eq 'CHECK_FAIL') {
         my $host = $params->[0];
         my $check = $params->[1];
         $checks_status->{$host}->{$check} = 0;
@@ -255,8 +255,7 @@ sub CheckServersStates() {
 
         # REPLICATION_DELAY -> REPLICATION_FAIL
         if ($host->{state} eq 'REPLICATION_DELAY' 
-         && $host_checks->{ping} > 0 && $host_checks->{mysql} > 0 && $host_checks->{rep_backlog} > 0 
-         && !$host_checks->{rep_threads}) {
+         && $host_checks->{ping} > 0 && $host_checks->{mysql} > 0 && !$host_checks->{rep_threads}) {
             LogTrap("Daemon: State change($host_name): REPLICATION_DELAY -> REPLICATION_FAIL");
             $host->{state} = 'REPLICATION_FAIL';
             $host->{state_change} = time();

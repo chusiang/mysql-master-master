@@ -114,7 +114,15 @@ sub CreateChecksStatus() {
             LogError("Eval Error: $@") if $@;
             LogDebug("$check('$host') = '$res'");
             
-            $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : ($res =~ /^UNKNOWN/) ? ($host eq $active_master_name ? -1 : 0) : 0;
+            if ($res =~ /^OK/) {
+                $status->{$host}->{$check} = 1;
+            } 
+            elsif ($res =~ /^UNKNOWN/) {
+                $status->{$host}->{$check} = -1;
+            }
+            else {
+                $status->{$host}->{$check} = 0;
+            }
         }
     }
     
@@ -179,7 +187,8 @@ sub CheckerMain($$$) {
             if ($res =~ /^OK/) {
                 $failures->{$host} = 0;
                 if ($checks_status->{$host}->{$check_name} <= 0) {
-                    LogTrap("Check: CHECK_OK('$host', '$check_name')");
+                    LogTrap("Check: CHECK_OK('$host', '$check_name')") if $checks_status->{$host}->{$check_name} == 0;
+                    LogDebug("Check: CHECK_OK('$host', '$check_name')") if $checks_status->{$host}->{$check_name} < 0;
                     $command_queue->enqueue(CreateCommand('CHECK_OK', $host, $check_name));
                 }
                 next;
@@ -188,7 +197,7 @@ sub CheckerMain($$$) {
             # If unknown let's keep the status quo
             if ($res =~ /^UNKNOWN/) {
                 if ($checks_status->{$host}->{$check_name} > 0) {
-                    LogTrap("Check: CHECK_UNKNOWN('$host', '$check_name')  Returned message: $res");
+                    LogDebug("Check: CHECK_UNKNOWN('$host', '$check_name')  Returned message: $res");
                     $command_queue->enqueue(CreateCommand('CHECK_UNKNOWN', $host, $check_name));
                 }
                 next;
