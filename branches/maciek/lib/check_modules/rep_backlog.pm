@@ -59,7 +59,8 @@ sub PerformCheck($$) {
 
     return $res if ($res);
     return 'ERROR: Timeout' if ($@ =~ /^TIMEOUT/);    
-    return "UNKNOWN: Error occurred: $@" if $@;
+    return "ERROR: Error occurred: $@" if ($@ =~ /^ERROR/);
+    return "UNKNOWN: Problem occurred: $@" if $@;
     return "OK";
 }
 
