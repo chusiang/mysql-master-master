@@ -102,7 +102,7 @@ sub SendArpNotification($$) {
             $arp_param = "-i $if -S $ip";
         }
         elsif (`$arp_util 2>&1` =~ /\[-s source\]/) {
-            $arp_param = "-I $if -s $ip";
+            $arp_param = "-A -I $if -s $ip";
         } else {
             print "ERROR: Unknown arping version!\n";
             exit(1);
