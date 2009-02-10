@@ -1,0 +1,46 @@
+This page covers additions/changes having to do with http://mysql-master-master.googlecode.com/svn/branches/maciek/
+
+= Introduction =
+
+The purpose of this branch is to provide a more stable release of the 1.0 code base, with additional configuration options.  To get this branch, run:
+
+{{{
+svn checkout http://mysql-master-master.googlecode.com/svn/branches/maciek/ mmmro
+}}}
+
+= Failover Method =
+
+One of the more interesting additions included to MMM is the "Failover Method".  It can be defined in mmm_mon_C#.conf via:
+
+failover_method [auto|manual|wait]
+
+auto - fully automated cluster management (default)
+
+manual - writer roles are only maintained manually
+
+wait – works like 'manual', but only until both master nodes are ONLINE or one master node is ONLINE and specified wait time has passed, then it switches to 'auto'.  The wait method uses a new configuration option: wait_for_other_master sec, which is the delay time used when in ‘wait’ failover. When only single master node becomes ONLINE, wait only that long for the other to appear before switching to ‘auto’; 0 means disabled
+
+or on the command-line by:
+
+mmm_control @C# failover_method [auto|manual|wait]
+
+= New Node States =
+
+PENDING – when a node state is unknown to the monitor, PENDING is used to assume nothing
+
+= Major Changes =
+
+major changes in behavior from the original MMM:
+  * on mmmd_mon startup, if no saved state is available and there is no connectivity with agents set PENDING state for nodes rather than HARD_OFFLINE; PENDING can only change when node’s agent and MySQL become available
+  * on exlusive (writer) role change, kill all user threads on the old active master to prevent further writes
+  * on mmmd_agent startup, read local server’s IP address table and discover own roles
+  * on replication error, when it happens on the active master, ignore the error and allow the node to retain its roles
+  * on certain MySQL errors (e.g. too many connections), when they happen on the active master, ignore them and allow the node to retain its roles
+
+= Bugs Fixed =
+
+The following is a list of reported issues with MMM 1.0 that have been addressed in this branch.
+
+= Revision History =
+
+r218 -> Current Release
