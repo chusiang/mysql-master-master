@@ -18,4 +18,4 @@
 
 == mmmd_agent - daemon to run on database servers ==
 
-== mmmd_angel ==
+== mmmd_angel - daemon to monitor mmm services ==
