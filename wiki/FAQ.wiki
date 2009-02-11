@@ -77,5 +77,6 @@ So, for monitoring account you'll need *REPLICATION CLIENT* privilege.
 
 This account would be used to manage servers in cluster so it needs SUPER privileges.
 
+=== Will MMM work with ethernet bonding? ===
 
-
+Yes, but the mode will need to be set to 1 (active backup)
