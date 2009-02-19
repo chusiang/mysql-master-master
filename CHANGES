@@ -1,3 +1,20 @@
+2009-02-19
+
+•       minor changes
+•       fixed behavior when switching from manual to auto mode to immediately fail all broken nodes
+
+2009-02-10
+
+•       full manual mode, i.e. readers do not shift on node errors
+•       printing version information
+•       version bump
+
+2009-02-09
+
+•       fixed logging
+•       fixed handinlg failed checks
+•       fixed usage for iputils arping utility (force ARP answer mode)
+
 2009-02-06
 
 •       added more verbosity to failed checks logging
