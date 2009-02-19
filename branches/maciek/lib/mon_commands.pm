@@ -252,13 +252,39 @@ sub SetFailoverMethod($) {
     # Get params
     my $params = $cmd->{params};
     my ($setting) = @$params;
+
+    my $old_failover_method = $failover_method;
     
-    if (!$setting) {
+    if (!$setting || $setting eq $old_failover_method) {
         return $failover_method;
     }
     if ($setting =~ /^(auto|wait|manual)$/) {
         $status_sem->down;
         $failover_method = $setting;
+        LogTrap("Failover method set to '$setting'.");
+        if ($failover_method eq 'auto')
+        {
+            foreach my $host_name (keys(%$servers_status)) {
+                my $host = $servers_status->{$host_name};
+
+                next if $host->{state} eq 'ONLINE' || $host->{state} eq 'PENDING' || $host->{state} eq 'ADMIN_OFFLINE';
+                next if $host_name eq GetActiveMaster() && $host->{state} ne 'HARD_OFFLINE';
+
+                LogTrap("Enforcing $host->{state} state on $host_name.");
+
+                # Clear roles list and get list of affected children
+                my $affected_children = ClearServerRoles($host_name);
+                foreach my $child (@$affected_children) {
+                    my $res = SendStatusToAgent($child);
+                    if (!$res) {
+                        LogWarn("Can't notify affected child host '$child' about parent state change");
+                    }
+                }
+
+                # Notify host about its state
+                my $res = SendStatusToAgent($host_name);
+            }
+        }
         $status_sem->up;
         return "OK: The failover method is now set to '$setting'.";
     }

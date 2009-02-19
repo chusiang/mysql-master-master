@@ -22,6 +22,9 @@ sub PerformCheck($$) {
         # connect to server
         my $dsn = "DBI:mysql:host=$host;port=$port;mysql_connect_timeout=$timeout";
         my $dbh = DBI->connect($dsn, $user, $pass, { PrintError => 0 });
+
+        # destroy the password once it is not needed to prevent it from showing up in the alert messages
+        $pass =~ s/./x/g;
         
         unless ($dbh) {
             alarm(0);

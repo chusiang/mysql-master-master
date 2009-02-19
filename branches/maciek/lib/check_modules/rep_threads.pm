@@ -22,6 +22,10 @@ sub PerformCheck($$) {
         # connect to server
         my $dsn = "DBI:mysql:host=$host;port=$port";
         my $dbh = DBI->connect($dsn, $user, $pass, { PrintError => 0 });
+
+        # destroy the password once it is not needed to prevent it from showing up in the alert messages
+        $pass =~ s/./x/g;
+
         return "UNKNOWN: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr unless ($dbh);
     
         # Check server (replication backlog)

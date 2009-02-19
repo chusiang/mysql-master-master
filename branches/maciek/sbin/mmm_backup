@@ -13,6 +13,7 @@ use Getopt::Long;
 our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
 # Include parts of the system
+require $SELF_DIR . '/lib/version.pm';
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/db.pm';

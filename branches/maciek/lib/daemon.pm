@@ -274,7 +274,7 @@ sub CheckServersStates() {
             $host->{state_change} = time();
 
             if ($failover_method ne 'auto') {
-                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
+#                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
                 next;
             }
 
@@ -315,7 +315,7 @@ sub CheckServersStates() {
             $host->{state_change} = time();
 
             if ($failover_method ne 'auto') {
-                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
+#                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
                 next;
             }
 
@@ -355,7 +355,7 @@ sub CheckServersStates() {
             $host->{state_change} = time();
 
             if ($failover_method ne 'auto') {
-                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
+#                OrphanBalancedRoles($host_name) if $failover_method ne 'wait';
                 next;
             }
 
