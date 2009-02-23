@@ -27,3 +27,29 @@ ARP-pings are performed with `arping` on linux and `send_arp` on Solaris. IP ava
 Some other prerequisites are some Perl modules - I will not describe them all here - installer would help you to figure out which modules are missing and how to install them
 
 When installation will be done, you will need to perform configuration of installed software. Before you will begin, read description of [TypicalUseCases typical use-cases] with configuration files examples. And read documentation about allowed configuration options and their values.
+
+= Running at startup =
+
+To configure mmm_mon to run at startup on RedHat/CentOS (assumes configuration has been complete):
+
+{{{
+%> cp /usr/local/mmm/scripts/init.d/mmm_mon /etc/init.d/mmm_mon
+%> chkconfig --add mmm_mon
+%> chkconfig --levels 2 mmm_mon on # Add any applicable runlevels
+%> service mmm_mon start
+}}}
+
+To configure mmm_agent on the db hosts to run at startup on RedHat/CentOS (assumes configuration has been complete):
+
+{{{
+%> cp /usr/local/mmm/scripts/init.d/mmm_agent /etc/init.d/mmm_agent
+%> chkconfig --add mmm_agent
+%> chkconfig --levels 2 mmm_agent on # Add any applicable runlevels
+%> service mmm_agent start
+}}}
+
+= To configure log rotation =
+
+{{{
+%> cp /usr/local/mmm/scripts/logrotate.d/mmm /etc/logrotate.d/mmm
+}}}
