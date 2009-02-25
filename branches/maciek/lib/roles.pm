@@ -12,17 +12,17 @@ sub CheckIP($) {
 
 #-----------------------------------------------------------------
 sub AllowWrite() {
-    return ExecuteBin("mysql_allow_write");
+    return ExecuteBin("mysql_allow_write", "'$MMM_CONFIG'");
 }
 
 #-----------------------------------------------------------------
 sub DenyWrite() {
-    return ExecuteBin("mysql_deny_write");
+    return ExecuteBin("mysql_deny_write", "'$MMM_CONFIG'");
 }
 
 #-----------------------------------------------------------------
 sub SyncWithMaster() {
-    return ExecuteBin("sync_with_master");
+    return ExecuteBin("sync_with_master", "'$MMM_CONFIG'");
 }
 
 1;

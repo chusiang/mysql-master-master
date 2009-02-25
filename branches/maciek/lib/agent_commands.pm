@@ -19,9 +19,9 @@ sub CommandMain() {
         }
         if ($cfg_roles->{$role}->{mode} eq 'exclusive') {
             if ($#{$my_roles->{$role}} >= 0) {
-                ExecuteBin("mysql_allow_write", "");
+                ExecuteBin("mysql_allow_write", "'$MMM_CONFIG'");
             } else {
-                ExecuteBin("mysql_deny_write", "");
+                ExecuteBin("mysql_deny_write", "'$MMM_CONFIG'");
             }
         }
         $new_roles_str .= $role . '(' . join(';', @{$my_roles->{$role}}) . ';),' if $#{$my_roles->{$role}} >= 0;
@@ -77,7 +77,7 @@ sub CommandMain() {
 sub CheckRoles() {
     # Check all my roles
     foreach my $role (@server_roles) {
-        ExecuteBin("agent/check_role", "'$role'");
+        ExecuteBin("agent/check_role", "'$MMM_CONFIG' '$role'");
     }
 }
 
@@ -157,7 +157,7 @@ sub SetStatusCommand($) {
     
     if ($config->{host}->{$host_name}->{mode} eq 'slave' && $active_master ne $new_master && $new_state eq 'ONLINE' && $new_master ne "") {
         LogNotice("Changing active master: $new_master");
-        $res = ExecuteBin("agent/set_active_master", "'$new_master'");
+        $res = ExecuteBin("agent/set_active_master", "'$MMM_CONFIG' '$new_master'");
         LogDebug("Result: $res");
         if ($res) {
             $active_master = $new_master;
@@ -191,13 +191,13 @@ sub SetStatusCommand($) {
 
         foreach my $role (@deleted_roles) {
             LogDebug("Deleting role: $role");
-            $res = ExecuteBin("agent/del_role", "'$role'");
+            $res = ExecuteBin("agent/del_role", "'$MMM_CONFIG' '$role'");
             LogDebug("Result: $res");
         }
 
         foreach my $role (@added_roles) {
             LogDebug("Adding role: $role");
-            $res = ExecuteBin("agent/add_role", "'$role'");
+            $res = ExecuteBin("agent/add_role", "'$MMM_CONFIG' '$role'");
             LogDebug("Result: $res");
         }
         
@@ -208,7 +208,7 @@ sub SetStatusCommand($) {
     # Process state change if any
     if ($new_state ne $server_state) {
         LogNotice("Changed state! $server_state -> $new_state");
-        $res = ExecuteBin("agent/set_state", "$server_state $new_state");
+        $res = ExecuteBin("agent/set_state", "'$MMM_CONFIG' $server_state $new_state");
         LogDebug("Result: $res");
 
         $server_state = $new_state;
