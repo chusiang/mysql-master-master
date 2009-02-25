@@ -22,13 +22,16 @@ require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/agent_commands.pm';
 require $SELF_DIR . '/lib/ifconfig.pm';
 
+# The configuration file
+our $MMM_CONFIG = $#ARGV>=0 ? $ARGV[0] : "mmm_agent.conf";
+
 #-----------------------------------------------------------------
 # Say hello
 PrintVersion();
 
 #-----------------------------------------------------------------
 # Read config file
-our $config = ReadConfig("mmm_agent.conf");
+our $config = ReadConfig($MMM_CONFIG);
 
 # We need to know how previous session has been finished
 our $unclean_start = CheckPidFile();

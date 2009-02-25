@@ -17,15 +17,17 @@ require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/roles.pm';
 
-# Read config file
-our $config = ReadConfig("mmm_agent.conf");
-
-if (scalar(@ARGV) < 1) {
-    print "ERROR: Usage: $0 <master_host>\n\n";
+if (scalar(@ARGV) < 2) {
+    print "ERROR: Usage: $0 <config> <master_host>\n\n";
     exit(101);
 }
 
-my $master_host = shift(@ARGV);
+our $MMM_CONFIG = $ARGV[0];
+
+# Read config file
+our $config = ReadConfig($MMM_CONFIG);
+
+my $master_host = $ARGV[1];
 if (!defined($config->{host}->{$master_host})) {
     print "ERROR: Invalid master host ($master_host)\n"
 }
