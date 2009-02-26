@@ -34,6 +34,7 @@ For your convenience, here are the Perl modules you may need on Debian:
 
 {{{
 apt-get install libproc-daemon-perl libalgorithm-diff-perl
+}}}
 
 = Running at startup =
 
