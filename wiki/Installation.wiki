@@ -28,6 +28,13 @@ Some other prerequisites are some Perl modules - I will not describe them all he
 
 When installation will be done, you will need to perform configuration of installed software. Before you will begin, read description of [TypicalUseCases typical use-cases] with configuration files examples. And read documentation about allowed configuration options and their values.
 
+== Debian Perl Prerequisites ==
+
+For your convenience, here are the Perl modules you may need on Debian:
+
+{{{
+apt-get install libproc-daemon-perl libalgorithm-diff-perl
+
 = Running at startup =
 
 To configure mmm_mon to run at startup on RedHat/CentOS (assumes configuration has been complete):
