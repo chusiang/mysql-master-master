@@ -1,0 +1,14 @@
+#summary MySQL-MMM Version 2
+
+= Introduction =
+
+MySQL-MMM 2 is a complete rewrite of MMM. There is no backward compatibility, so you can't use your old configuration with MMM 2.
+
+
+= Documentation =
+See http://mysql-master-master.googlecode.com/files/mysql-mmm-2.0.0-1.pdf
+
+= Installation =
+
+ * For debian/ubuntu/... download .deb files and install them with dpkg.
+ * For other linux distributions download and extract .tar.gz and install with make install. There is no install script which checks for dependencies at the moment.
