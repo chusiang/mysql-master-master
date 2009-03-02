@@ -1,7 +1,7 @@
 #summary MySQL-MMM Version 2 (beta)
 
 = Please Note =
-MMM 2 is not as well tested as MMM 1.*.* - Use latest version of MMM 1.*.* if you're unsure!
+MMM 2 is not as well tested as MMM 1.x.x - Use latest version of MMM 1.x.x if you're unsure!
 
 = Introduction =
 
