@@ -19,3 +19,40 @@ MMM has a lot of shortcomings and even a few bugs.  Let's get them in public and
   * there's no way to make it run in passive mode (for testing etc)
   * another issue with MMM is - if you restart mysql on standby master, w/o doing set_offline, then the writer role will be switched to it because the active master will have replication failure with standby master
   * Flapping.  Ability to make it not do more than N switches (default 1?) in a time interval, say 1 per day, "not more than N before a human runs mmm_control set_available failed_server". That way there can only be one failover
+
+= More Details =
+
+The following are some notes based on an email thread internally at Percona.  Putting them in public.
+
+  # Introduce Monitor states, e.g.:
+    *   ON – regular monitoring and actions
+    *   WAIT – regular monitoring activities, but no actions are taken; automatically switches to ON when all master nodes become ONLINE
+    *   OFF – monitoring/sending notifications only, no failover – a different approach is being developed by a contributor?
+  # Start Monitor to WAIT state only
+  # The writer node cannot be automatically deprived of the role or set OFFLINE unless dead, so in particular not when:
+    *   any of its slave threads failed
+    *   replication is lagging
+    *   can’t connect due to max_connections limit being reached (i.e. server is overloaded).  Actually I can’t think of any situation other than database/server crash which would justify switching the roles, so perhaps this could be way to go.
+  # When removing writer role make sure transactions cannot be run on the node anymore. The new cluster parameter should allow administrator to configure one of:
+    *   wait until current queries complete and kill existing threads in Sleep stateor kill all connected threads when the wait exceeds certain number of seconds
+    *   immediately kill all connected threads regardless
+  # Allow setting up a firewall rule on passive master to block incoming traffic to MySQL
+  # Have a working tool to invalidate/update ARP caches
+    *   build the binary during MMM installation?
+    *   distribute pre-built software for various architectures
+    *   other?
+  # Monitor should not take any actions when it cannot reach any of the master nodes
+  # Agent should attempt to discover its current role on startup; Monitor should try to learn the roles from agents when it does not know them – being developed by a contributor
+  # Allow configurable rate limit for automated role switching to reduce the risk of flapping – being developed by a contributor
+  # Proper documentation
+  # Allow administrator to configure whether do AWAITING_RECOVERY or straight to ONLINE
+  # Add option to mmm_backup to discover and take backup from the passive master automatically
+  # Allow logging through Syslog; do own logs rotation daily or by size
+  # Make it work on any of the popular systems (Linux, BSD, Solaris) – FreeBSD version reported as working (except for backup/clone), however it seems that is not really through a real portability, but rather through a significant rewrite which makes it difficult to manage
+  # Move any hardcoded information used applications into configurable variables (paths, system utils names, e-mail addresses) – e-mail address thing fix was contributed recently, but e-mail messages should also be configurable
+  # Monitor - Agent communication over SSL and with authentication – done?
+  # Choose less confusing configuration parameters naming (e.g. DEST_DIR, BACKUP_DIR, DATA_DIR)
+  # Make clone and backup tools to discover paths from MySQL configuration
+  # Allow more than one Monitoring node
+  # Monitoring node to contain full configuration and providing it to Agents (as in MySQL Cluster)
+  # Warn about bad auto_increment_increment and auto_increment_offset values or even force them to be changed on-line
