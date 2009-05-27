@@ -36,6 +36,9 @@ my $master_host = $3;
 my $res = AddRole($role_name, $ip, $master_host);
 
 print "$res\n";
+
+exit(1) if ($res =~ /^ERROR/);
+
 exit(0);
 
 #-----------------------------------------------------------------
@@ -43,16 +46,23 @@ sub AddRole($$$) {
     my $role = shift;
     my $ip = shift;
     my $master_host = shift;
-    
+    my $ret;
+
     if ($role eq 'reader') {
-        CheckIP($ip);
+        $ret = CheckIP($ip);
+        if ($ret =~ /^ERROR/) {
+            return $ret;
+        }
         return "OK: Role 'reader' added!";
     }
     
     if ($role eq 'writer') {
         SyncWithMaster();
+        $ret = CheckIP($ip);
+        if ($ret =~ /^ERROR/) {
+            return $ret;
+        }
         AllowWrite();
-        CheckIP($ip);
         return "OK: Role 'writer' added!"
     }
     
