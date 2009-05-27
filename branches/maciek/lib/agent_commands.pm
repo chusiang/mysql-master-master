@@ -193,12 +193,18 @@ sub SetStatusCommand($) {
             LogDebug("Deleting role: $role");
             $res = ExecuteBin("agent/del_role", "'$MMM_CONFIG' '$role'");
             LogDebug("Result: $res");
+            if ($res =~ /^ERROR/) {
+                return "ERROR: Could not delete '$role'!\n";
+            }
         }
 
         foreach my $role (@added_roles) {
             LogDebug("Adding role: $role");
             $res = ExecuteBin("agent/add_role", "'$MMM_CONFIG' '$role'");
-            LogDebug("Result: $res");
+            if ($res =~ /^ERROR:[ ]*(.*)$/) {
+                LogError("Could not add '$role'! Error message: $1");
+                return "ERROR: Could not add '$role'! Error message: $1\n";
+            }
         }
         
         @server_roles = @new_roles;

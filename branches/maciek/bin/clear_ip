@@ -17,14 +17,17 @@ if (scalar(@ARGV) < 2) {
     exit(1);
 }
 
+my $ret;
 my $ip = $ARGV[0];
 my $iface = $ARGV[1];
 
 # Check if ip is here
-CheckInterfaceIP($iface, $ip, 0);
+$ret = CheckInterfaceIP($iface, $ip, 0);
+exit($ret) if ($ret);
 
 # Clear ip
-ClearInterfaceIP($iface, $ip);
+$ret = ClearInterfaceIP($iface, $ip);
+exit($ret) if ($ret);
 
 print "OK: IP deleted\n";
 exit(0);

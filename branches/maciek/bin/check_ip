@@ -17,17 +17,24 @@ if (scalar(@ARGV) < 2) {
     exit(1);
 }
 
+my $ret;
 my $ip = $ARGV[0];
 my $iface = $ARGV[1];
 
 # Check if ip is already here
-CheckInterfaceIP($iface, $ip, 1);
+$ret = CheckInterfaceIP($iface, $ip, 1);
+exit($ret) if ($ret);
 
 # Add interface ip
-AddInterfaceIP($iface, $ip);
+$ret = AddInterfaceIP($iface, $ip);
+exit($ret) if ($ret);
 
 # Send ARP packet to notify all about ip assignment
-SendArpNotification($iface, $ip);
+$ret = SendArpNotification($iface, $ip);
+if ($ret) {
+    ClearInterfaceIP($iface, $ip);
+    exit($ret);
+}
 
 print "OK: IP has been address added\n";
 exit(0);
