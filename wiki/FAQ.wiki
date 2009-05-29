@@ -95,3 +95,8 @@ That entirely depends on how much downtime you can handle, with the following ex
 
   * Use MANUAL mode if your network is unreliable or you plan to do network maintenance.  Small blips in availability can result in a broken MMM installation, with stale arp caches and bad routes.
   * Use MANUAL mode if you plan to do any schema maintenance (http://www.mysqlperformanceblog.com/2008/03/27/using-mmm-to-alter-huge-tables/) in order to prevent accidental failovers during long-running ALTER statements
+
+=== Where can I go for help? ===
+
+  * #mmm on irc.freenode.net
+  * mmm-devel on Google Groups
