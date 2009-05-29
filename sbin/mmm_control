@@ -77,3 +77,148 @@ sub PrintUsage() {
     my @command_names = keys(%$commands_map);
     print "Usage: $0 <" . join('|', @command_names) . "> [..params..]\n\n";
 }
+
+=pod
+
+=head1 NAME
+
+mmm_control - Script to control the MMM monitor server
+
+=head1 SYNOPSIS
+
+ mmm_control [cluster] <command> [params]
+
+ Commands:
+   show            Display status of target MMM cluster and exits 
+   move_role       Change the role of the target host
+   set_online      Set a target host online (from AWAITING_RECOVERY)
+   set_offline     Set a target host offline
+   ping            Checks if the VIP associated with the target host
+                   is pingable
+   failover_method Sets the failover method for the target cluster
+
+ Roles:
+   writer sets read_only OFF and attaches all slaves to this as master
+   reader sets read_only ON and attaches target host to writer
+
+ Failover Methods:
+   auto   fully automated cluster management (default)  
+   manual writer roles are only maintained manually 
+   wait   works like 'manual', but only until both master nodes are 
+          ONLINE or one master node is ONLINE and specified wait time 
+          has passed, then it switches to 'auto'. The wait method 
+          uses a new configuration option: wait_for_other_master 
+          sec, which is the delay time used when in ‘wait’ failover. 
+          When only single master node becomes ONLINE, wait only 
+          that long for the other to appear before switching to 
+          ‘auto’; 0 means disabled 
+
+=head1 COMMANDS
+
+=over
+
+=item B<show>
+
+Display status of target MMM cluster and exits
+
+=item B<move_role>
+ 
+Change the role of the target host
+
+=item B<set_online>
+
+Set a target host online (from AWAITING_RECOVERY)
+
+=item B<set_offline>
+
+Set a target host offline
+
+=item B<ping>
+
+Checks if the VIP associated with the target host is pingable
+
+=item B<failover_method>
+
+Sets the failover method for the target cluster
+
+=back
+
+=head1 ROLES
+
+=over
+
+=item B<writer>
+
+read_only=OFF. Obtains the floating IP assigned to writer.
+
+=item B<reader>
+
+read_only=ON. Obtains one of the floating IPs assigned to reader.
+
+=over
+
+=head1 FAILOVER METHODS
+
+=over
+
+=item B<auto>
+
+fully automated cluster management (default)
+
+=item B<manual>
+
+writer roles are only maintained manually
+
+=item B<wait>
+
+works like 'manual', but only until both master nodes are
+  ONLINE or one master node is ONLINE and specified wait time
+  has passed, then it switches to 'auto'. The wait method
+  uses a new configuration option: wait_for_other_master
+  sec, which is the delay time used when in ‘wait’ failover.
+  When only single master node becomes ONLINE, wait only 
+  that long for the other to appear before switching to 
+  ‘auto’; 0 means disabled
+
+=back
+
+=head1 SYSTEM REQUIREMENTS
+
+mmm requires the following Perl modules:
+
+  Pod::Usage
+  Getopt::Long
+  DBI
+  DBD::mysql
+
+=head1 BUGS
+
+Please report all bugs and feature requests to
+https://launchpad.net/mysql-mmm
+
+=head1 LICENSE
+
+THIS PROGRAM IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, version 2; OR the Perl Artistic License.  On UNIX and similar
+systems, you can issue `man perlgpl' or `man perlartistic' to read these
+licenses.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA  02111-1307 USA.
+
+=head1 AUTHOR
+
+mysql-mmm-core (https://launchpad.net/~mysql-mmm-core)
+
+=head1 VERSION
+
+This manual page documents 1.2.4 of mmm 
+
+=cut
+
