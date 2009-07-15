@@ -89,6 +89,8 @@ Yes, use the build-in check_proc function as follows:
 
 ./check_procs -C perl -a mmmd_angel -c1:1
 
+For more advanced checks, you can use check_mmm, which is included in http://code.google.com/p/check-mysql-all/
+
 === Should I use AUTOMATIC or MANUAL failover? ===
 
 That entirely depends on how much downtime you can handle, with the following exceptions:
