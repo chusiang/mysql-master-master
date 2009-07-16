@@ -7,6 +7,8 @@ $log_levels->{'warn'} = 20;
 $log_levels->{'notice'} = 30;
 $log_levels->{'debug'} = 100;
 
+my $last_trap_message = '';
+
 #-----------------------------------------------------------------
 sub LogDebug($) {
     PrintLog(@_, 'debug');
@@ -29,7 +31,10 @@ sub LogError($) {
 
 #-----------------------------------------------------------------
 sub LogTrap($) {
-    PrintLog(@_, 'trap');
+    if ($last_trap_message ne $_[0]) {
+        PrintLog(@_, 'trap');
+        $last_trap_message = $_[0];
+    }
 }
 
 #-----------------------------------------------------------------

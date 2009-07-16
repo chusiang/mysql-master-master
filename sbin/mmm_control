@@ -22,10 +22,15 @@ $Config{useithreads} or die "Recompile Perl with threads to run this program.";
 our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
 # Include parts of the system
+require $SELF_DIR . '/lib/version.pm';
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/commands.pm';
 require $SELF_DIR . '/lib/control.pm';
+
+#-----------------------------------------------------------------
+# Say hello
+PrintVersion();
 
 #-----------------------------------------------------------------
 my $postfix = "";
@@ -52,6 +57,7 @@ $commands_map->{show} = \&ShowCommand;
 $commands_map->{set_online} = \&SetOnlineCommand;
 $commands_map->{set_offline} = \&SetOfflineCommand;
 $commands_map->{move_role} = \&MoveRoleCommand;
+$commands_map->{failover_method} = \&SetFailoverMethod;
 
 # Check params
 if (scalar(@ARGV) < 1) {

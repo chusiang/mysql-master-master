@@ -3,16 +3,25 @@ sub PingCommand() {
     my $res = SendMonitorCommand("PING");
     if (!$res) {
         print "\n\nWARNING!!! DAEMON IS NOT RUNNING. INFORMATION MAY NOT BE ACTUAL!!!\n\n\n";
+        return -1;
     } else {
         print "Daemon is running!\n";
+        return 0;
     }
 }
 
 
 #-----------------------------------------------------------------
 sub ShowCommand() {
-    PingCommand();
-    
+    my $ping = PingCommand();
+
+    if (!$ping) {
+        my $res = SendMonitorCommand('FAILOVER_METHOD');
+        chomp($res);
+        print "===============================\n";
+        printf("Cluster failover method: %s\n", uc($res));
+        print "===============================\n";
+    }
     my $saved_status = LoadServersStatus();
     print "Servers status:\n";
     
@@ -69,6 +78,22 @@ sub MoveRoleCommand() {
     }
     
     $res = SendMonitorCommand('MOVE_ROLE', $role, $host);
+    print "Command sent to monitoring host. Result: $res\n";
+}
+
+
+#-----------------------------------------------------------------
+sub SetFailoverMethod() {
+    PingCommand();
+    
+    my $method = $ARGV[1];
+    if (!$method) {
+        print "Error! You should specify mode 'auto', 'wait' or 'manual' after command!\n";
+        PrintUsage();
+        exit(1);
+    }
+    
+    $res = SendMonitorCommand('FAILOVER_METHOD', $method);
     print "Command sent to monitoring host. Result: $res\n";
 }
 

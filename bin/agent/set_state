@@ -17,16 +17,17 @@ require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/roles.pm';
 
-# Read config file
-our $config = ReadConfig("mmm_agent.conf");
-
-if (scalar(@ARGV) < 2) {
-    print "Usage: $0 <old_state> <new_state>\n\n";
+if (scalar(@ARGV) < 3) {
+    print "Usage: $0 <config> <old_state> <new_state>\n\n";
     exit(1);
 }
 
-my $old_state = $ARGV[0];
-my $new_state = $ARGV[1];
+our $MMM_CONFIG = $ARGV[0];
+my $old_state = $ARGV[1];
+my $new_state = $ARGV[2];
+
+# Read config file
+our $config = ReadConfig($MMM_CONFIG);
 
 my $res = SetState($old_state, $new_state);
 
@@ -40,13 +41,13 @@ sub SetState($$) {
     
     if ($new_state eq 'ADMIN_OFFLINE') {
         LogDebug("Turning off slave in this host");
-        ExecuteBin("turn_off_slave");
+        ExecuteBin("turn_off_slave", "'$MMM_CONFIG'");
         return "OK: state changed to ADMIN_OFFLINE";
     }
     
     if ($old_state eq 'ADMIN_OFFLINE') {
         LogDebug("Turning on slave in this host");
-        ExecuteBin("turn_on_slave");
+        ExecuteBin("turn_on_slave", "'$MMM_CONFIG'");
         return "OK: state changed from ADMIN_OFFLINE";
     }
     

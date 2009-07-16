@@ -16,8 +16,13 @@ use Time::HiRes;
 our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 
 # Include parts of the system
+require $SELF_DIR . '/lib/version.pm';
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
+
+#-----------------------------------------------------------------
+# Say hello
+PrintVersion();
 
 #-----------------------------------------------------------------
 # Read config file
