@@ -22,9 +22,16 @@ sub PerformCheck($$) {
         # connect to server
         my $dsn = "DBI:mysql:host=$host;port=$port;mysql_connect_timeout=$timeout";
         my $dbh = DBI->connect($dsn, $user, $pass, { PrintError => 0 });
+
+        # destroy the password once it is not needed to prevent it from showing up in the alert messages
+        $pass =~ s/./x/g;
         
         unless ($dbh) {
             alarm(0);
+            # We don't want to trigger any action because of a simple 'too many connections' error
+            if (DBI::err == 1040) {
+                return "UNKNOWN: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr;
+            }
             return "ERROR: Connect error (host = $host:$port, user = $user, pass = '$pass')! " . DBI::errstr;
         }
     
@@ -47,7 +54,8 @@ sub PerformCheck($$) {
 
     return $res if ($res);
     return 'ERROR: Timeout' if ($@ =~ /^TIMEOUT/);
-    return "UNKNOWN: Error occurred: $@" if $@;
+    return "ERROR: Error occurred: $@" if ($@ =~ /^ERROR/);
+    return "UNKNOWN: Problem occurred: $@" if $@;
     return "OK";
 }
 

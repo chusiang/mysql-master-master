@@ -27,12 +27,17 @@ our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 require $SELF_DIR . '/lib/semaphore.pm';
 
 # Include parts of the system
+require $SELF_DIR . '/lib/version.pm';
 require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/checkers.pm';
 require $SELF_DIR . '/lib/mon_commands.pm';
 require $SELF_DIR . '/lib/daemon.pm';
 require $SELF_DIR . '/lib/commands.pm';
+
+#-----------------------------------------------------------------
+# Say hello
+PrintVersion();
 
 #-----------------------------------------------------------------
 # Read config file
@@ -66,6 +71,9 @@ our $checks_status : shared = CreateChecksStatus();
 # Servers status data
 our $servers_status : shared = CreateServersStatus();
 
+# Failover method
+our $failover_method : shared = CreateFailoverMethod();
+
 #print Dumper($servers_status);
 
 # Go to background
@@ -91,6 +99,9 @@ sleep(3);
 # Creating message queues
 my $status_queue = new Thread::Queue();
 my $command_queue = new Thread::Queue();
+
+# ???
+sleep(1);
 
 # Creating command worker
 my $command_thread = new threads(\&CommandMain, $command_queue, $status_queue);

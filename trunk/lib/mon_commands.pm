@@ -62,6 +62,7 @@ sub HandleCommand($) {
     $commands->{set_online} = \&SetOnlineCommand;
     $commands->{set_offline} = \&SetOfflineCommand;
     $commands->{move_role} = \&MoveRoleCommand;
+    $commands->{failover_method} = \&SetFailoverMethod;
     
     # Handle command
     if ($commands->{$command->{name}}) {
@@ -186,7 +187,7 @@ sub MoveRoleCommand($) {
     # Get params
     my $params = $cmd->{params};
     my ($role, $host) = @$params;
-    
+
     if (!defined($servers_status->{$host})) {
         return "ERROR: Unknown host name ($host)!";
     }
@@ -196,7 +197,11 @@ sub MoveRoleCommand($) {
     }
 
     if ($roles->{$role}->{mode} ne 'exclusive') {
-        return "ERROR: move_role may be used for exclusive roles only!";
+        $status_sem->down;
+        OrphanBalancedRoles($host);
+        $status_sem->up;
+
+        return "OK: Role '$role' has been removed from '$host'. Now you can wait some time and check new roles info!";
     }
 
     unless ($servers_status->{$host}->{state} eq 'ONLINE') {
@@ -207,7 +212,7 @@ sub MoveRoleCommand($) {
     unless (grep({$_ eq $host} @$role_servers)) {
         return "ERROR: Host '$host' can't handle role '$role'. Only following hosts could: " . join(', ', @$role_servers);
     }
-    
+
     my $res = SendAgentCommand($host, 'PING');
     if (!$res) {
         return "ERROR: Can't reach agent daemon on '$host'! Can't move roles there!";
@@ -237,6 +242,53 @@ sub MoveRoleCommand($) {
     $status_sem->up;
     
     return "OK: Role '$role' has been moved from '$old_owner' to '$host'. Now you can wait some time and check new roles info!";
+}
+
+
+#-----------------------------------------------------------------
+sub SetFailoverMethod($) {
+    my $cmd = shift;
+    
+    # Get params
+    my $params = $cmd->{params};
+    my ($setting) = @$params;
+
+    my $old_failover_method = $failover_method;
+    
+    if (!$setting || $setting eq $old_failover_method) {
+        return $failover_method;
+    }
+    if ($setting =~ /^(auto|wait|manual)$/) {
+        $status_sem->down;
+        $failover_method = $setting;
+        LogTrap("Failover method set to '$setting'.");
+        if ($failover_method eq 'auto')
+        {
+            foreach my $host_name (keys(%$servers_status)) {
+                my $host = $servers_status->{$host_name};
+
+                next if $host->{state} eq 'ONLINE' || $host->{state} eq 'PENDING' || $host->{state} eq 'ADMIN_OFFLINE';
+                next if $host_name eq GetActiveMaster() && $host->{state} ne 'HARD_OFFLINE';
+
+                LogTrap("Enforcing $host->{state} state on $host_name.");
+
+                # Clear roles list and get list of affected children
+                my $affected_children = ClearServerRoles($host_name);
+                foreach my $child (@$affected_children) {
+                    my $res = SendStatusToAgent($child);
+                    if (!$res) {
+                        LogWarn("Can't notify affected child host '$child' about parent state change");
+                    }
+                }
+
+                # Notify host about its state
+                my $res = SendStatusToAgent($host_name);
+            }
+        }
+        $status_sem->up;
+        return "OK: The failover method is now set to '$setting'.";
+    }
+    return "ERROR: Invalid option."
 }
 
 

@@ -17,15 +17,17 @@ require $SELF_DIR . '/lib/config.pm';
 require $SELF_DIR . '/lib/log.pm';
 require $SELF_DIR . '/lib/roles.pm';
 
-# Read config file
-our $config = ReadConfig("mmm_agent.conf");
-
-if (scalar(@ARGV) < 1) {
-    print "Usage: $0 <role>\n\n";
+if (scalar(@ARGV) < 2) {
+    print "Usage: $0 <config> <role>\n\n";
     exit(1);
 }
 
-my $role = $ARGV[0];
+our $MMM_CONFIG = $ARGV[0];
+
+# Read config file
+our $config = ReadConfig($MMM_CONFIG);
+
+my $role = $ARGV[1];
 $role =~ /^(.*)\((.*);(.*)\)$/;
 my $role_name = $1;
 my $ip = $2;
@@ -34,6 +36,9 @@ my $master_host = $3;
 my $res = AddRole($role_name, $ip, $master_host);
 
 print "$res\n";
+
+exit(1) if ($res =~ /^ERROR/);
+
 exit(0);
 
 #-----------------------------------------------------------------
@@ -41,16 +46,26 @@ sub AddRole($$$) {
     my $role = shift;
     my $ip = shift;
     my $master_host = shift;
-    
+    my $ret;
+
     if ($role eq 'reader') {
-        CheckIP($ip);
+        $ret = CheckIP($ip);
+        if ($ret =~ /^ERROR/) {
+            return $ret;
+        }
         return "OK: Role 'reader' added!";
     }
     
     if ($role eq 'writer') {
-        SyncWithMaster();
+        $ret = SyncWithMaster();
+        if ($ret =~ /^ERROR/) {
+            return $ret;
+        }
+        $ret = CheckIP($ip);
+        if ($ret =~ /^ERROR/) {
+            return $ret;
+        }
         AllowWrite();
-        CheckIP($ip);
         return "OK: Role 'writer' added!"
     }
     

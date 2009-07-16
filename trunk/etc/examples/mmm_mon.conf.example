@@ -11,3 +11,13 @@ status_path /usr/local/mmm/var/mmmd.status
 # MMMD command socket tcp-port
 bind_port 9988
 
+# Choose the default failover method [manual|wait|auto]
+failover_method wait
+
+# How many seconds to wait for both masters to become ONLINE 
+# before switching from WAIT to AUTO failover method, 0 = wait indefinitely
+wait_for_other_master 60
+
+# How many seconds to wait before switching node status from AWAITING_RECOVERY to ONLINE
+# 0 = disabled
+# auto_set_online 0

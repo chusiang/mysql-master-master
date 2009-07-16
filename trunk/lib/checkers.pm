@@ -96,6 +96,8 @@ sub CheckService($$) {
 sub CreateChecksStatus() {
     my $status = &share({});
 
+    my $active_master_name = GetActiveMaster();
+
     # Shortcuts
     my $checks = $config->{check};
     my $hosts = $config->{host};
@@ -112,7 +114,15 @@ sub CreateChecksStatus() {
             LogError("Eval Error: $@") if $@;
             LogDebug("$check('$host') = '$res'");
             
-            $status->{$host}->{$check} = ($res =~ /^OK/)? 1 : 0;
+            if ($res =~ /^OK/) {
+                $status->{$host}->{$check} = 1;
+            } 
+            elsif ($res =~ /^UNKNOWN/) {
+                $status->{$host}->{$check} = -1;
+            }
+            else {
+                $status->{$host}->{$check} = 0;
+            }
         }
     }
     
@@ -176,9 +186,19 @@ sub CheckerMain($$$) {
             # If success
             if ($res =~ /^OK/) {
                 $failures->{$host} = 0;
-                if (!$checks_status->{$host}->{$check_name}) {
-                    LogTrap("Check: CHECK_OK('$host', '$check_name')");
+                if ($checks_status->{$host}->{$check_name} <= 0) {
+                    LogTrap("Check: CHECK_OK('$host', '$check_name')") if $checks_status->{$host}->{$check_name} == 0;
+                    LogDebug("Check: CHECK_OK('$host', '$check_name')") if $checks_status->{$host}->{$check_name} < 0;
                     $command_queue->enqueue(CreateCommand('CHECK_OK', $host, $check_name));
+                }
+                next;
+            }
+
+            # If unknown let's keep the status quo
+            if ($res =~ /^UNKNOWN/) {
+                if ($checks_status->{$host}->{$check_name} > 0) {
+                    LogDebug("Check: CHECK_UNKNOWN('$host', '$check_name')  Returned message: $res");
+                    $command_queue->enqueue(CreateCommand('CHECK_UNKNOWN', $host, $check_name));
                 }
                 next;
             }
@@ -191,7 +211,7 @@ sub CheckerMain($$$) {
                 my $failure_age = time() - $failures->{$host};
                 
                 if ($failure_age >= $max_failures && $checks_status->{$host}->{$check_name}) {
-                    LogTrap("Check: CHECK_FAIL('$host', '$check_name')");
+                    LogTrap("Check: CHECK_FAIL('$host', '$check_name')  Returned message: $res");
                     $command_queue->enqueue(CreateCommand('CHECK_FAIL', $host, $check_name));
                 }
                 next;
