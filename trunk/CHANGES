@@ -1,3 +1,11 @@
+2009-07-16
+
+•       improved load balancing when there is only a single reader
+•       improved error checking
+•       various minor fixes
+•       version bump
+
+
 2009-02-23
 
 •       added the ability to choose the agent configuration file from the command line
