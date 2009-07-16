@@ -2,7 +2,7 @@ my $PROGRAM_NAME = 'MySQL Multi-Master Replication Manager';
 my $PROGRAM_SHORT = 'MMM';
 my $PROGRAM_VERSION_MAJOR = 1;
 my $PROGRAM_VERSION_MINOR = 2;
-my $PROGRAM_VERSION_PATCH = 4;
+my $PROGRAM_VERSION_PATCH = 5;
 
 sub PrintVersion()
 {
