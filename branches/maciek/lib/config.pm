@@ -162,6 +162,7 @@ sub CreateRolesList() {
     my $roles = &share({});
     
     my $cfg_roles = $config->{role};
+    $roles->{_count} = 0;
     foreach my $role (sort(keys(%$cfg_roles))) {
         $roles->{$role} = &share({});
         $roles->{$role}->{mode} = $cfg_roles->{$role}->{mode};
@@ -187,6 +188,7 @@ sub CreateRolesList() {
             $role_ip->{ip} = $ip;
             $role_ip->{assigned_to} = ""; # orphaned by default
             $roles->{$role}->{ips}->{$ip} = $role_ip;
+            $roles->{_count}++;
         }
     }
 
@@ -469,7 +471,7 @@ sub CountHostRoles($) {
         my $role = $roles->{$role_name};
         my $role_ips = $role->{ips};
 
-        next if $role->{mode} eq 'exclusive';
+        next if $role->{mode} eq 'exclusive' && ($roles->{_count} % 2 == 1);
         
         foreach my $ip (keys(%$role_ips)) {
             my $ip_info = $role_ips->{$ip};

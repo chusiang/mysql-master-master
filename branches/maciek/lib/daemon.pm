@@ -192,7 +192,7 @@ sub CheckServersStates() {
         if ($host->{state} eq 'AWAITING_RECOVERY' && $host_checks->{ping} > 0 
          && $host_checks->{mysql} > 0 
          && (($peer->{state} ne 'ONLINE' && defined($config->{wait_for_other_master}) 
-           && $config->{wait_for_other_master} > 0 && $config->{wait_for_other_master} <= time() - $host->{status_change})
+           && $config->{wait_for_other_master} > 0 && $config->{wait_for_other_master} <= time() - $host->{state_change})
           || ($host_checks->{rep_backlog} > 0 && $host_checks->{rep_threads} > 0))) {
             my $uptime_diff = $host->{uptime} - $host->{last_uptime};
             LogDebug("AWAITING_RECOVERY state on $host_name... Uptime change is $uptime_diff");
@@ -201,7 +201,7 @@ sub CheckServersStates() {
             if (($host->{last_uptime} > 0 && $uptime_diff > 0 && $uptime_diff < 60)
              || (defined($config->{auto_set_online}) && $config->{auto_set_online} > 0 
               && $config->{auto_set_online} <= time() - $host->{state_change})) {
-                my $status_diff = time() - $host->{status_change};
+                my $status_diff = time() - $host->{state_change};
                 # Server is online now
                 $host->{state} = 'ONLINE';
                 $host->{state_change} = time();
