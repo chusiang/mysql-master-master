@@ -16,16 +16,8 @@ our $SELF_DIR = dirname(dirname(Cwd::abs_path(__FILE__)));
 # Include parts of the system
 require $SELF_DIR . '/lib/config.pm';
 
-if (scalar(@ARGV) < 1)
-{
-    print "ERROR: Usage: $0 <config>";
-    exit(1);
-}
-
-our $MMM_CONFIG = $ARGV[0];
-
 # Read config file and status
-our $config = ReadConfig($MMM_CONFIG);
+our $config = ReadConfig("mmm_agent.conf");
 
 print SyncWithMaster();
 
@@ -50,32 +42,31 @@ sub SyncWithMaster($) {
     my $peer_user = $config->{host}->{$peer}->{user};
     my $peer_pass = $config->{host}->{$peer}->{password};
     
-
-    # Repeat the cycle until we don't need to wait for synchronization
-    my $loop_no=0;
-    while (1)
-    {    
-      my $this_dbh = MysqlConnect($host, $port, $user, $pass);
-      return "ERROR: Can't connect to MySQL (host = $host:$port, user = $user)!"  if (!$this_dbh);
     
-      my $peer_dbh = MysqlConnect($peer_host, $peer_port, $peer_user, $peer_pass);
-      return "ERROR: Master could not be contacted." unless ($peer_dbh);
+    my $this_dbh = MysqlConnect($host, $port, $user, $pass);
+    return "ERROR: Can't connect to MySQL (host = $host:$port, user = $user)!"  if (!$this_dbh);
+    
+    my $peer_dbh = MysqlConnect($peer_host, $peer_port, $peer_user, $peer_pass);
 
-      my $row = MysqlQuery($peer_dbh, "SHOW MASTER STATUS");
-      my $wait_log = $row->{File};
-      my $wait_pos = $row->{Position};
-      MysqlDisconnect($peer_dbh);
-
-      my $time_before_sync = time();    
-      my $res = ExecuteQuery($this_dbh, "SELECT MASTER_POS_WAIT('$wait_log', $wait_pos)");
-      return "ERROR: SQL Query Error: " . $this_dbh->errstr unless($res);
-      MysqlDisconnect($this_dbh);
-
-      last if time() - $time_before_sync <= 1 || $loop_no == 10;
-    } 
-
-    return "ERROR: Unable to synchronize this host to master." if $loop_no == 10;
-
+    my $wait_log;
+    my $wait_pos;
+    
+    # If can get info from master, do it
+    if ($peer_dbh) {
+        #print "Will sync with master log...\n";
+        my $row = MysqlQuery($peer_dbh, "SHOW MASTER STATUS");
+        $wait_log = $row->{File};
+        $wait_pos = $row->{Position};
+    } else {
+        #print "Will sync with relay log...\n";
+        my $row = MysqlQuery($this_dbh, "SHOW SLAVE STATUS");
+        $wait_log = $row->{Master_Log_File};
+        $wait_pos = $row->{Read_Master_Log_Pos};
+    }
+    
+    my $res = ExecuteQuery($this_dbh, "SELECT MASTER_POS_WAIT('$wait_log', $wait_pos)");
+    return "ERROR: SQL Query Error: " . $this_dbh->errstr unless($res);
+    
     return "OK";
 }
 
@@ -85,13 +76,6 @@ sub MysqlConnect($$$$) {
     
     my $dsn = "DBI:mysql:host=$host;port=$port";
     return DBI->connect($dsn, $user, $pass, { PrintError => 0 });
-}
-
-#-----------------------------------------------------------------
-sub MysqlDisconnect($) {
-    my ($dbh) = @_;
-
-    $dbh->disconnect();
 }
 
 #-----------------------------------------------------------------
