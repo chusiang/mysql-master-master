@@ -1,2 +1,2 @@
-#labels Phase-Implementation,Featured
+#labels Phase-Implementation
 Moved to: http://mysql-mmm.org/mmm1:typical-use-cases
