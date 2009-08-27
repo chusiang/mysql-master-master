@@ -1,16 +1,2 @@
-#summary What is MMM, Do I need MMM, etc...
 #labels Phase-Design
-
-= Introduction =
-
-MMM (MySQL Master-Master Replication Manager) is set of flexible scripts to perform monitoring and management of MySQL Masrter-Master replication cluster configurations.
-
-
-= Details =
-
-Generally, MMM offers MySQL monitoring and automatic failover for master-master pairs, it also has scripts for data backups, resynchronization between nodes etc. 
-
-In two node master-master setup, MMM uses five IPs: single permanent IP for each node that is never changed, 2 _reader_ IPs (read-only) and 1 _writer_ IP (updates). Last three IPs are migrating between the nodes depending on node availability.
-
-Normally (no replication failures, no replication delay etc) active master has 2 IPs (reader and writer), standby master - 1 IP (reader). In case of a failure, both - writer and reader roles migrate to the working node.
-
+Moved to: http://mysql-mmm.org/mmm1:start
