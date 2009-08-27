@@ -1,14 +1,2 @@
-#summary Short overview of the MMM internals and code structure.
 #labels Phase-Implementation,Phase-Design
-
-= Introduction =
-
-This small article will provide you with short but in-depth description of the MMM cluster internals, will show you how it's functioning, etc.
-
-
-= Details =
-
-Basically, MMM consists of three main parts (scripts):
-  # mmmd_mon - monitoring script which does all monitoring work and makes all decisions about roles moving and so on.
-  # mmmd_agent - remote servers management agent script, which provides monitoring node with simple set of remote services to make servers management easier, more flexible abd highly portable.
-  # mmm_control - simple script dedicated to management of the mmmd_mon processes by commands.
+Moved to: http://mysql-mmm.org/mmm1:internals
