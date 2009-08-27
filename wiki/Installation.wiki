@@ -1,2 +1,2 @@
-#labels Phase-Deploy,Featured
+#labels Phase-Deploy
 Moved to http://mysql-mmm.org/mmm1:installation
