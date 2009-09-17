@@ -28,6 +28,11 @@ if ($sock)
 		{
 			// parent, close new socket and keep listening
 			socket_close($new_socket);
+			
+			// clear any previously exited children that are still zombie
+			while( pcntl_waitpid(-1, $status, WNOHANG) > 0 )
+			{
+			}
 		}
 		else
 		{
