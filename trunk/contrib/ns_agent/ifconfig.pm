@@ -28,7 +28,7 @@ sub CheckInterfaceIP($$$) {
 	my $present = ($ips =~ /$current_ip/) ? 1 : 0;
     if ($check_presence == $present) {
         print "OK: IP address presence check result is '$present'\n";
-        exit(0);
+        return(1);
     }
 
 }
@@ -49,7 +49,7 @@ sub ClearInterfaceIP($$) {
 #        exit(1);
 #    }
 	$result = SendNameserverCommand("CLEARIP:$hostname:$ip");
-	exit($result);
+	return($result);
 }
 
 #-------------------------------------------------------
@@ -75,7 +75,7 @@ sub AddInterfaceIP($$) {
 #    }
 
 	$result = SendNameserverCommand("ADDIP:$hostname:$ip");
-	exit($result);
+	return($result);
 
 }
 
@@ -118,7 +118,7 @@ sub SendArpNotification($$) {
         $if_mask = $2;
     } else {
         print "ERROR: Unsupported platform!\n";
-        exit(1);
+        return(1);
     }
     `$SELF_DIR/bin/sys/send_arp -i 100 -r 5 -p /tmp/send_arp $if $ip auto $if_bcast $if_mask`;
 }
@@ -127,7 +127,7 @@ sub SendArpNotification($$) {
 #-----------------------------------------------------------------
 sub GetCurrentIPAddress($) {
 	my $if = shift;
-	my $current_ip = `ip ad show dev $if | grep inet | awk '{sub("/.*","",\$2);print \$2;}'`;
+	my $current_ip = `ip ad show dev $if | grep 'inet ' | awk '{sub("/.*","",\$2);print \$2;}'`;
 	chop $current_ip;
 	return $current_ip;
 }
@@ -168,6 +168,22 @@ sub SendNameserverCommand($) {
 
     return $res;	
 
+}
+#-----------------------------------------------------------------
+sub GetMyIPs() {
+    my @ips;
+
+    open(IP, '/sbin/ip ad sho|');
+    while(<IP>) {
+        last if /^[0-9]+: $config->{cluster_interface}:/;
+    }
+    while(<IP>) {
+        last if /^[0-9]+:/;
+        next if not /inet ([0-9.]+)\//;
+        push(@ips, $1);
+    }
+    close(IP);
+    return \@ips;
 }
 
 1;
