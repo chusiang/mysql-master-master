@@ -1,0 +1,1 @@
+Please go to the official project website for more information: http://www.mysql-mmm.org

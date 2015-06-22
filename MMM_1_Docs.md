@@ -1,0 +1,1 @@
+Moved to: http://mysql-mmm.org/mmm1:mmm-1.2
